@@ -1,23 +1,38 @@
 import type { GPSCoordinate } from "../types";
-const MOVING_MODES =["walking", "fastWalking" , "lightRunning" , "moderateRunning" , "sustainedRunning"] as const; 
-type MovingMode = typeof MOVING_MODES[number];
+export const MOVING_MODES = [
+  "walking",
+  "fastWalking",
+  "lightRunning",
+  "moderateRunning",
+  "sustainedRunning"
+] as const;
+export type MovingMode = (typeof MOVING_MODES)[number];
 const estimatedSpeedsKmH: Record<MovingMode, number> = {
   walking: 5,
-  fastWalking: 6.5, 
+  fastWalking: 6.5,
   lightRunning: 8,
   moderateRunning: 10,
-  sustainedRunning: 12,
-}
+  sustainedRunning: 12
+};
 
-export const estimateTimeByDistance = (pointA: GPSCoordinate, pointB: GPSCoordinate) : Record<MovingMode, number> => {
+export const estimateTimeByDistance = (
+  pointA: GPSCoordinate,
+  pointB: GPSCoordinate
+): Record<MovingMode, number> => {
   const distanceInMeters = haversineDistance(pointA, pointB);
-  return Object.fromEntries(MOVING_MODES.map(mode => {
-    const timeInMinutes = 60 * (((distanceInMeters / 1000) / estimatedSpeedsKmH[mode]));
-    return [mode, timeInMinutes];
-  })) as Record<MovingMode, number>;
-}
+  return Object.fromEntries(
+    MOVING_MODES.map(mode => {
+      const timeInMinutes =
+        60 * (distanceInMeters / 1000 / estimatedSpeedsKmH[mode]);
+      return [mode, timeInMinutes];
+    })
+  ) as Record<MovingMode, number>;
+};
 
-export const haversineDistance = (start: GPSCoordinate, end: GPSCoordinate): number => {
+export const haversineDistance = (
+  start: GPSCoordinate,
+  end: GPSCoordinate
+): number => {
   const toRadians = (degrees: number): number => degrees * (Math.PI / 180);
   const { latitude: lat1, longitude: lon1 } = start;
   const { latitude: lat2, longitude: lon2 } = end;
