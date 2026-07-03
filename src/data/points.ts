@@ -2,6 +2,7 @@ import type { GPSCoordinate } from "../types";
 
 
 export type BeachStand = {
+  id: number;
   name: string;
   timestamp: string;
   coordinates: GPSCoordinate;
@@ -12,12 +13,12 @@ export type BeachStand = {
 
 export type GPSWaypointsKml = {
   name: string;
-  waypoints: BeachStand[];
+  beachStands: BeachStand[];
 };
 
-export const gpsWaypointsKml = {
+export const gpsBeachStandKml = {
   name: "GPSWpts-2026-07-03",
-  waypoints: [
+  beachStands: [
     {
       name: "Pierino alla bufalara",
       timestamp: "2026-07-03T09:13:17Z",
@@ -63,20 +64,40 @@ export const gpsWaypointsKml = {
       accuracy: 0,
       provider: "Manual",
     },
-  ],
+  ].map((bs,idx) => ({...bs, id: idx+1})),
 } satisfies GPSWaypointsKml;
 
 
-const waypoints = gpsWaypointsKml.waypoints;
+const beachStands = gpsBeachStandKml.beachStands;
 // Bounding box [[minLng, minLat], [maxLng, maxLat]] that contains every
 // waypoint, so the map can zoom to fit them all on load.
 export const bounds: [[number, number], [number, number]] = [
   [
-    Math.min(...waypoints.map(w => w.coordinates.longitude)),
-    Math.min(...waypoints.map(w => w.coordinates.latitude))
+    Math.min(...beachStands.map(w => w.coordinates.longitude)),
+    Math.min(...beachStands.map(w => w.coordinates.latitude))
   ],
   [
-    Math.max(...waypoints.map(w => w.coordinates.longitude)),
-    Math.max(...waypoints.map(w => w.coordinates.latitude))
+    Math.max(...beachStands.map(w => w.coordinates.longitude)),
+    Math.max(...beachStands.map(w => w.coordinates.latitude))
   ]
 ];
+
+
+
+export const getBesideBeachStand = (backstand: BeachStand, beside: "next" | "previous"): BeachStand | undefined => {
+  if(beachStands.length < 2){
+    return undefined;
+  }
+  const next = beside === "next";
+  const index = beachStands.findIndex(bs => bs.id === backstand.id);
+  if(index === -1){
+    return undefined;
+  }
+  if(index === beachStands.length -1 && next){
+    return beachStands[0];
+  }
+  if(index === 0 && !next){
+    return beachStands[beachStands.length -1];
+  }
+  return beachStands[index + (next ? 1 : - 1)];
+}

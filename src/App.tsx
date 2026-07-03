@@ -1,5 +1,6 @@
 import { AppShell, Burger, Group, Text, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
 
 export function App() {
@@ -33,6 +34,8 @@ export function App() {
       >
         <MapView />
       </AppShell.Main>
+
+      <BeachStandDrawer />
     </AppShell>
   );
 }

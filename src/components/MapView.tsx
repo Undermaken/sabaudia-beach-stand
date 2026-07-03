@@ -1,7 +1,7 @@
 import { Alert, Box } from "@mantine/core";
 import { Map as MapGL, NavigationControl } from "react-map-gl/mapbox";
-import { bounds, gpsWaypointsKml } from "../data/points.ts";
-import { WaypointMarker } from "./WaypointMarker.tsx";
+import { bounds, gpsBeachStandKml } from "../data/points.ts";
+import { WaypointMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -32,8 +32,8 @@ export function MapView() {
         style={{ width: "100%", height: "100%" }}
       >
         <NavigationControl position="top-right" />
-        {gpsWaypointsKml.waypoints.map(waypoint => (
-          <WaypointMarker key={waypoint.name} waypoint={waypoint} />
+        {gpsBeachStandKml.beachStands.map(beackStand => (
+          <WaypointMarker key={beackStand.name} beackStand={beackStand} />
         ))}
       </MapGL>
     </Box>
