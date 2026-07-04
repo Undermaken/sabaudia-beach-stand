@@ -87,7 +87,7 @@ export const BeachStandDrawer = () => {
       onClose={resetAtom}
       position="bottom"
       size="auto"
-      radius="lg"
+      radius="md"
       withCloseButton
       title={beachStand?.name}
       styles={{
@@ -101,7 +101,8 @@ export const BeachStandDrawer = () => {
           margin: 0,
           textAlign: "center",
           fontWeight: 700,
-          fontSize: "var(--mantine-font-size-lg)"
+          // Larger than the NeighborCard titles (which use size="lg").
+          fontSize: "1.75rem"
         },
         // Bottom-sheet: at most half the screen height, body scrolls internally.
         content: { maxHeight: "50dvh" },
@@ -162,6 +163,7 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
   return (
     <Paper withBorder radius="md" p="md">
       <Stack gap="sm" align="center">
+        <Stack gap={4} align="center">
         <Group gap="xs" justify="center" wrap="nowrap">
           <Text fw={700} size="lg" ta="center" lh={1.2}>
             {neighbor.name}
@@ -175,7 +177,7 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
             {formatDistance(distance)}
           </Badge>
         </Group>
-        <Stack gap={2} align="center">
+        
           <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
             <Text span size="xs" tt="none" fw={500} c="dimmed">
               punto di servizio{" "}

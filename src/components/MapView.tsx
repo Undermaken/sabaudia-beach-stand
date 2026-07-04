@@ -1,12 +1,46 @@
 import { Alert, Box } from "@mantine/core";
-import { Map as MapGL, NavigationControl } from "react-map-gl/mapbox";
+import { useEffect, useRef, type RefObject } from "react";
+import {
+  Map as MapGL,
+  type MapRef,
+  NavigationControl
+} from "react-map-gl/mapbox";
 import { bounds, gpsBeachStandKml } from "../data/points.ts";
 import { WaypointMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
+import { useAtomValue } from "jotai";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+const MAP_PADDING = { top: 80, bottom: 40, left: 40, right: 40 };
 
-export function MapView() {
+export const MapView = () => {
+  const beachStand = useAtomValue(selectedBeachStandAtom);
+  const mapRef = useRef<MapRef | null>(null);
+  useEffect(() => {
+    if (!beachStand){
+      mapRef?.current?.fitBounds(
+      bounds,
+      {
+        padding: MAP_PADDING
+      }
+    );
+    return;
+    } 
+    const { longitude, latitude } = beachStand.coordinates;
+    mapRef?.current?.fitBounds(
+      [
+        [longitude, latitude],
+        [longitude, latitude]
+      ],
+      {
+        padding: {...MAP_PADDING, bottom: 160},
+        maxZoom: 14,
+        duration: 600
+      }
+    );
+  }, [beachStand, mapRef]);
+
   if (!MAPBOX_TOKEN) {
     return (
       <Alert color="yellow" title="Mappa non disponibile" m="md">
@@ -20,11 +54,12 @@ export function MapView() {
   return (
     <Box style={{ flex: 1, minHeight: 0 }}>
       <MapGL
+        ref={mapRef}
         mapboxAccessToken={MAPBOX_TOKEN}
         initialViewState={{
           bounds,
           fitBoundsOptions: {
-            padding: { top: 80, bottom: 40, left: 40, right: 40 }
+            padding: MAP_PADDING
           }
         }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
@@ -37,4 +72,4 @@ export function MapView() {
       </MapGL>
     </Box>
   );
-}
+};

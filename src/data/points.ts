@@ -93,10 +93,10 @@ export const getBesideBeachStand = (
     return undefined;
   }
   if (index === beachStands.length - 1 && next) {
-    return beachStands[0];
+    return undefined;
   }
   if (index === 0 && !next) {
-    return beachStands[beachStands.length - 1];
+    return undefined;
   }
   return beachStands[index + (next ? 1 : -1)];
 };
