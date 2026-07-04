@@ -6,14 +6,13 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-
 export function MapView() {
   if (!MAPBOX_TOKEN) {
     return (
-      <Alert color="yellow" title="Map unavailable" m="md">
-        Missing <code>VITE_MAPBOX_ACCESS_TOKEN</code>. Copy{" "}
-        <code>.env.example</code> to <code>.env</code> and add a Mapbox access
-        token to display the map.
+      <Alert color="yellow" title="Mappa non disponibile" m="md">
+        Manca <code>VITE_MAPBOX_ACCESS_TOKEN</code>. Copia{" "}
+        <code>.env.example</code> in <code>.env</code> e aggiungi un token di
+        accesso Mapbox per visualizzare la mappa.
       </Alert>
     );
   }

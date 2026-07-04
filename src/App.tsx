@@ -25,7 +25,7 @@ export function App() {
 
       <AppShell.Navbar p="md">
         <Text size="sm" c="dimmed">
-          Navigation goes here.
+          Navigazione
         </Text>
       </AppShell.Navbar>
 

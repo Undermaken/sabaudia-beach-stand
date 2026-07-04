@@ -22,7 +22,7 @@ import {
   type MovingMode
 } from "../utils/map.ts";
 
-/** Descrizione leggibile, colore e icona per ogni tipo di movimento. */
+/** Human-readable label, accent color and icon for each moving mode. */
 const MODE_META: Record<
   MovingMode,
   { descrizione: string; color: string; Icon: ComponentType<IconProps> }
@@ -74,8 +74,8 @@ function formatDistance(meters: number): string {
 }
 
 /**
- * Drawer stile bottom-sheet che si apre quando uno stabilimento è selezionato
- * (`selectedBeachStandAtom` definito) e azzera la selezione alla chiusura.
+ * Bottom-sheet-like drawer that opens when a beach stand is selected
+ * (`selectedBeachStandAtom` defined) and clears the selection on close.
  */
 export const BeachStandDrawer = () => {
   const beachStand = useAtomValue(selectedBeachStandAtom);
@@ -103,12 +103,12 @@ export const BeachStandDrawer = () => {
           fontWeight: 700,
           fontSize: "var(--mantine-font-size-lg)"
         },
-        // Bottom-sheet: al massimo metà schermo, con scroll interno del corpo.
+        // Bottom-sheet: at most half the screen height, body scrolls internally.
         content: { maxHeight: "50dvh" },
         body: { overflowY: "auto" }
       }}
     >
-      {/* Maniglia della bottom-sheet. */}
+      {/* Bottom-sheet grab handle. */}
       <Box
         mx="auto"
         mb="md"
@@ -125,8 +125,7 @@ export const BeachStandDrawer = () => {
   );
 };
 
-
-const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand })  => {
+const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
   const previous = getBesideBeachStand(beachStand, "previous");
   const next = getBesideBeachStand(beachStand, "next");
 
@@ -148,7 +147,7 @@ const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand })  => {
       )}
     </Stack>
   );
-}
+};
 
 type NeighborCardProps = {
   direction: "previous" | "next";
@@ -168,7 +167,7 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
             {neighbor.name}
           </Text>
           <Badge
-            variant="light"  
+            variant="light"
             color="gray"
             radius="sm"
             style={{ flexShrink: 0 }}
@@ -177,18 +176,18 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
           </Badge>
         </Group>
         <Stack gap={2} align="center">
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
+          <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
+            <Text span size="xs" tt="none" fw={500} c="dimmed">
+              punto di servizio{" "}
+            </Text>
+            {DIRECTION_META[direction].label}{" "}
+          </Text>
           <Text span size="xs" tt="none" fw={500} c="dimmed">
-            punto di servizio{" "} 
-          </Text>{DIRECTION_META[direction].label}{" "} 
-        </Text>  
-        <Text span size="xs" tt="none" fw={500} c="dimmed">
             ({DIRECTION_META[direction].note})
           </Text>
-</Stack> 
-        
+        </Stack>
 
-        <Group gap="xs" align="flex-start"  wrap="wrap" pt={4}>
+        <Group gap="xs" align="flex-start" wrap="wrap" pt={4}>
           {MOVING_MODES.map(mode => (
             <ModeTile key={mode} mode={mode} minutes={times[mode]} />
           ))}
@@ -196,7 +195,7 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
       </Stack>
     </Paper>
   );
-}
+};
 
 const ModeTile = ({ mode, minutes }: { mode: MovingMode; minutes: number }) => {
   const { descrizione, color, Icon } = MODE_META[mode];
@@ -214,4 +213,4 @@ const ModeTile = ({ mode, minutes }: { mode: MovingMode; minutes: number }) => {
       </Text>
     </Stack>
   );
-}
+};

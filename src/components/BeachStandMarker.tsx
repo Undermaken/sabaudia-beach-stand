@@ -12,11 +12,18 @@ type BeachStandProps = {
  * A single waypoint rendered as a rounded, colored box.
  * Click handling is intentionally left out for now.
  */
-export const WaypointMarker: React.FC<BeachStandProps> = ({ beackStand }: BeachStandProps) => {
+export const WaypointMarker: React.FC<BeachStandProps> = ({
+  beackStand
+}: BeachStandProps) => {
   const { latitude, longitude } = beackStand.coordinates;
   const selectBeachStand = useSetAtom(selectedBeachStandAtom);
   return (
-    <Marker latitude={latitude} longitude={longitude} anchor="bottom" onClick={() => selectBeachStand(beackStand)}>
+    <Marker
+      latitude={latitude}
+      longitude={longitude}
+      anchor="bottom"
+      onClick={() => selectBeachStand(beackStand)}
+    >
       <Box
         title={beackStand.name}
         style={{
@@ -56,4 +63,4 @@ export const WaypointMarker: React.FC<BeachStandProps> = ({ beackStand }: BeachS
       </Box>
     </Marker>
   );
-}
+};

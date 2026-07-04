@@ -32,7 +32,9 @@ pnpm check         # biome check --write . (format + safe lint fixes)
 - **Always write React components as constant arrow functions**
   (`const MyComponent = (props: Props) => { ... }`), never as `function`
   declarations. This applies to every component, including small local helpers.
-- Write code, comments, and documentation in English.
+- **User-facing strings must be in Italian** (all UI text, labels, titles,
+  messages shown to the user).
+- **Code comments, identifiers, and documentation must be in English.**
 - Match the existing Biome style (2-space indent, width 80, double quotes,
   no trailing commas, `asNeeded` arrow parentheses).
 - Use `.ts`/`.tsx` extensions in relative imports (bundler resolution).
