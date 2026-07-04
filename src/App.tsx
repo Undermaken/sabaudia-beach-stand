@@ -19,7 +19,7 @@ export function App() {
       <AppShell.Header>
         <Group h="100%" px="md" gap="sm">
           <Burger opened={opened} onClick={toggle} size="sm" />
-          <Title order={4}>Sabaudia Beach</Title>
+          <Title order={4}>Sabaudia Servizi balneari</Title>
         </Group>
       </AppShell.Header>
 

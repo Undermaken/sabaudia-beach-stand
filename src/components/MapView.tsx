@@ -12,7 +12,8 @@ import {
   Map as MapGL,
   type MapRef,
   NavigationControl,
-  Source
+  Source,
+  useControl
 } from "react-map-gl/mapbox";
 import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
 import { WaypointMarker } from "./BeachStandMarker.tsx";
@@ -44,6 +45,35 @@ type MapViewProps = {
   ref?: Ref<MapViewHandle>;
 };
 
+// "Fit to frame" icon for the custom reset control (mapbox controls are plain DOM).
+const RESET_VIEW_ICON =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:auto"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>';
+
+// Mapbox has no built-in "reset view" control: add a custom mapbox-styled button
+// that stacks under NavigationControl (same corner, added after it).
+const ResetViewControl = ({ onReset }: { onReset: () => void }) => {
+  const onResetRef = useRef(onReset);
+  onResetRef.current = onReset;
+
+  useControl(
+    () => {
+      const container = document.createElement("div");
+      container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.title = "Reimposta vista";
+      button.setAttribute("aria-label", "Reimposta vista");
+      button.innerHTML = RESET_VIEW_ICON;
+      button.addEventListener("click", () => onResetRef.current());
+      container.appendChild(button);
+      return { onAdd: () => container, onRemove: () => container.remove() };
+    },
+    { position: "top-right" }
+  );
+
+  return null;
+};
+
 export const MapView = ({ ref }: MapViewProps) => {
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const { next, previous } = useAtomValue(selectedBeachStandNeighbors);
@@ -52,6 +82,14 @@ export const MapView = ({ ref }: MapViewProps) => {
     { line: GeoJSON.Feature<GeoJSON.LineString>; color: string }[]
   >([]);
   const clearDashedLine = useCallback(() => setDashedLines([]), []);
+
+  // Reset the map to its initial view (fit to every beach stand).
+  const resetView = useCallback(() => {
+    mapRef.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
+      padding: MAP_PADDING,
+      duration: 600
+    });
+  }, []);
 
   // Append a colored dashed line; state drives the <Source>/<Layer> rendered below.
   const drawDashedLine = useCallback(
@@ -85,18 +123,27 @@ export const MapView = ({ ref }: MapViewProps) => {
 
   // Keep the dashed lines in sync with the selection: one per existing neighbor.
   useEffect(() => {
+    clearDashedLine();
     if (!beachStand || (!next && !previous)) {
-      clearDashedLine();
       return;
     }
     if (next) {
-      drawDashedLine(next.coordinates, beachStand.coordinates, COLORS.nextBeachStandLineColor);
+      drawDashedLine(
+        next.coordinates,
+        beachStand.coordinates,
+        COLORS.nextBeachStandLineColor
+      );
     }
     if (previous) {
-      drawDashedLine(previous.coordinates, beachStand.coordinates, COLORS.prevBeachStandLineColor);
+      drawDashedLine(
+        previous.coordinates,
+        beachStand.coordinates,
+        COLORS.prevBeachStandLineColor
+      );
     }
   }, [next, previous]);
 
+  // Frame the viewport on the selection + its neighbors (whole set if none selected).
   useEffect(() => {
     if (!beachStand) {
       mapRef?.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
@@ -111,6 +158,7 @@ export const MapView = ({ ref }: MapViewProps) => {
     );
 
     mapRef?.current?.fitBounds(bounds, {
+      // Extra bottom padding keeps the selection clear of the open bottom-sheet.
       padding: { ...MAP_PADDING, bottom: 380 },
       maxZoom: 13,
       duration: 600
@@ -126,7 +174,6 @@ export const MapView = ({ ref }: MapViewProps) => {
       </Alert>
     );
   }
-  console.log(dashedLines);
   return (
     <Box style={{ flex: 1, minHeight: 0 }}>
       <MapGL
@@ -142,10 +189,12 @@ export const MapView = ({ ref }: MapViewProps) => {
         style={{ width: "100%", height: "100%" }}
       >
         <NavigationControl position="top-right" />
+        <ResetViewControl onReset={resetView} />
         {beachStands.map(beackStand => (
           <WaypointMarker key={beackStand.name} beackStand={beackStand} />
         ))}
         {dashedLines.map(({ line: dashedLine, color }) => {
+          // Unique source id per line — mapbox ignores sources sharing an id.
           const [start] = dashedLine.geometry.coordinates;
           const id = `dashed-line-${start[0]},${start[1]}`;
           return (
