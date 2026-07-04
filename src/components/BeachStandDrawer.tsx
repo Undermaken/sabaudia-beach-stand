@@ -1,14 +1,22 @@
 import {
   Badge,
   Box,
+  Collapse,
   Drawer,
   Group,
   Paper,
   Stack,
   Text,
-  ThemeIcon
+  ThemeIcon,
+  UnstyledButton
 } from "@mantine/core";
-import { type IconProps, IconRun, IconWalk } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import {
+  IconChevronDown,
+  type IconProps,
+  IconRun,
+  IconWalk
+} from "@tabler/icons-react";
 import { useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
 import type { ComponentType } from "react";
@@ -159,25 +167,35 @@ type NeighborCardProps = {
 const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
   const times = estimateTimeByDistance(origin, neighbor.coordinates);
   const distance = haversineDistance(origin, neighbor.coordinates);
+  const [opened, { toggle }] = useDisclosure(false);
 
   return (
     <Paper withBorder radius="md" p="md">
       <Stack gap="sm" align="center">
         <Stack gap={4} align="center">
-        <Group gap="xs" justify="center" wrap="nowrap">
-          <Text fw={700} size="lg" ta="center" lh={1.2}>
-            {neighbor.name}
-          </Text>
-          <Badge
-            variant="light"
-            color="gray"
-            radius="sm"
-            style={{ flexShrink: 0 }}
-          >
-            {formatDistance(distance)}
-          </Badge>
-        </Group>
-        
+          <UnstyledButton onClick={toggle} aria-expanded={opened}>
+            <Group gap="xs" justify="center" wrap="nowrap">
+              <Text fw={700} size="lg" ta="center" lh={1.2}>
+                {neighbor.name}
+              </Text>
+              <Badge
+                variant="light"
+                color="gray"
+                radius="sm"
+                style={{ flexShrink: 0 }}
+              >
+                {formatDistance(distance)}
+              </Badge>
+              <IconChevronDown
+                size={18}
+                style={{
+                  transition: "transform 150ms ease",
+                  transform: opened ? "rotate(180deg)" : "rotate(0deg)"
+                }}
+              />
+            </Group>
+          </UnstyledButton>
+
           <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
             <Text span size="xs" tt="none" fw={500} c="dimmed">
               punto di servizio{" "}
@@ -189,11 +207,19 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
           </Text>
         </Stack>
 
-        <Group gap="xs" align="flex-start" wrap="wrap" pt={4}>
-          {MOVING_MODES.map(mode => (
-            <ModeTile key={mode} mode={mode} minutes={times[mode]} />
-          ))}
-        </Group>
+        <Collapse expanded={opened}>
+          <Group
+            gap="xs"
+            align="flex-start"
+            justify="center"
+            wrap="wrap"
+            pt={4}
+          >
+            {MOVING_MODES.map(mode => (
+              <ModeTile key={mode} mode={mode} minutes={times[mode]} />
+            ))}
+          </Group>
+        </Collapse>
       </Stack>
     </Paper>
   );
