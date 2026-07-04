@@ -14,7 +14,7 @@ import {
   NavigationControl,
   Source
 } from "react-map-gl/mapbox";
-import { beachStands, bounds } from "../data/points.ts";
+import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
 import { WaypointMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAtomValue } from "jotai";
@@ -23,14 +23,20 @@ import {
   selectedBeachStandNeighbors
 } from "../atoms/selectedBeackStand.ts";
 import type { GPSCoordinate } from "../types.ts";
+import { COLORS } from "../utils/colors.ts";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAP_PADDING = { top: 80, bottom: 40, left: 40, right: 40 };
-
+// All stand coordinates, precomputed once for the default (whole-set) map fit.
+const BEACH_STANDS_COORDS = beachStands.map(bs => bs.coordinates);
 export type MapViewHandle = {
-  /** Draw a dashed line between two coordinates. */
-  drawDashedLine: (start: GPSCoordinate, end: GPSCoordinate) => void;
-  /** Remove the dashed line, if any. */
+  /** Draw a dashed line of the given color between two coordinates. */
+  drawDashedLine: (
+    start: GPSCoordinate,
+    end: GPSCoordinate,
+    color: string
+  ) => void;
+  /** Remove every dashed line, if any. */
   clearDashedLine: () => void;
 };
 
@@ -43,23 +49,27 @@ export const MapView = ({ ref }: MapViewProps) => {
   const { next, previous } = useAtomValue(selectedBeachStandNeighbors);
   const mapRef = useRef<MapRef | null>(null);
   const [dashedLines, setDashedLines] = useState<
-    GeoJSON.Feature<GeoJSON.LineString>[]
+    { line: GeoJSON.Feature<GeoJSON.LineString>; color: string }[]
   >([]);
   const clearDashedLine = useCallback(() => setDashedLines([]), []);
 
+  // Append a colored dashed line; state drives the <Source>/<Layer> rendered below.
   const drawDashedLine = useCallback(
-    (start: GPSCoordinate, end: GPSCoordinate) => {
+    (start: GPSCoordinate, end: GPSCoordinate, color: string) => {
       setDashedLines(pv => [
         ...pv,
         {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [start.longitude, start.latitude],
-              [end.longitude, end.latitude]
-            ]
+          color,
+          line: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [start.longitude, start.latitude],
+                [end.longitude, end.latitude]
+              ]
+            }
           }
         }
       ]);
@@ -67,44 +77,45 @@ export const MapView = ({ ref }: MapViewProps) => {
     []
   );
 
+  // Expose the draw/clear API to the parent through the forwarded ref.
   useImperativeHandle(ref, () => ({ drawDashedLine, clearDashedLine }), [
     drawDashedLine,
     clearDashedLine
   ]);
 
+  // Keep the dashed lines in sync with the selection: one per existing neighbor.
   useEffect(() => {
     if (!beachStand || (!next && !previous)) {
       clearDashedLine();
       return;
     }
     if (next) {
-      drawDashedLine(next.coordinates, beachStand.coordinates);
+      drawDashedLine(next.coordinates, beachStand.coordinates, COLORS.nextBeachStandLineColor);
     }
     if (previous) {
-      drawDashedLine(previous.coordinates, beachStand.coordinates);
+      drawDashedLine(previous.coordinates, beachStand.coordinates, COLORS.prevBeachStandLineColor);
     }
   }, [next, previous]);
 
   useEffect(() => {
     if (!beachStand) {
-      mapRef?.current?.fitBounds(bounds, {
+      mapRef?.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
         padding: MAP_PADDING
       });
       return;
     }
-    const { longitude, latitude } = beachStand.coordinates;
-    mapRef?.current?.fitBounds(
-      [
-        [longitude, latitude],
-        [longitude, latitude]
-      ],
-      {
-        padding: { ...MAP_PADDING, bottom: 160 },
-        maxZoom: 14,
-        duration: 600
-      }
+    const bounds = getBounds(
+      [beachStand, next, previous]
+        .filter((bs: BeachStand | undefined): bs is BeachStand => !!bs)
+        .map(bs => bs.coordinates)
     );
-  }, [beachStand]);
+
+    mapRef?.current?.fitBounds(bounds, {
+      padding: { ...MAP_PADDING, bottom: 380 },
+      maxZoom: 13,
+      duration: 600
+    });
+  }, [beachStand, next, previous]);
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -122,7 +133,7 @@ export const MapView = ({ ref }: MapViewProps) => {
         ref={mapRef}
         mapboxAccessToken={MAPBOX_TOKEN}
         initialViewState={{
-          bounds,
+          bounds: getBounds(BEACH_STANDS_COORDS),
           fitBoundsOptions: {
             padding: MAP_PADDING
           }
@@ -134,7 +145,7 @@ export const MapView = ({ ref }: MapViewProps) => {
         {beachStands.map(beackStand => (
           <WaypointMarker key={beackStand.name} beackStand={beackStand} />
         ))}
-        {dashedLines.map(dashedLine => {
+        {dashedLines.map(({ line: dashedLine, color }) => {
           const [start] = dashedLine.geometry.coordinates;
           const id = `dashed-line-${start[0]},${start[1]}`;
           return (
@@ -144,7 +155,7 @@ export const MapView = ({ ref }: MapViewProps) => {
                 type="line"
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{
-                  "line-color": "#e03131",
+                  "line-color": color,
                   "line-width": 3,
                   "line-dasharray": [2, 2]
                 }}

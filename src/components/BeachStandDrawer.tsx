@@ -32,6 +32,7 @@ import {
   MOVING_MODES,
   type MovingMode
 } from "../utils/map.ts";
+import { COLORS } from "../utils/colors.ts";
 
 /** Human-readable label, accent color and icon for each moving mode. */
 const MODE_META: Record<
@@ -100,6 +101,11 @@ export const BeachStandDrawer = () => {
       size="auto"
       radius="md"
       withCloseButton
+      // Keep the map behind the sheet fully interactive.
+      withOverlay={false}
+      lockScroll={false}
+      trapFocus={false}
+      closeOnClickOutside={false}
       title={beachStand?.name}
       styles={{
         header: { position: "relative", justifyContent: "center" },
@@ -115,8 +121,11 @@ export const BeachStandDrawer = () => {
           // Larger than the NeighborCard titles (which use size="lg").
           fontSize: "1.75rem"
         },
+        // Let clicks/touches pass through the portal wrapper to the map;
+        // only the sheet content itself stays interactive.
+        inner: { pointerEvents: "none" },
         // Bottom-sheet: at most half the screen height, body scrolls internally.
-        content: { maxHeight: "50dvh" },
+        content: { maxHeight: "40dvh", pointerEvents: "auto" },
         body: { overflowY: "auto" }
       }}
     >
@@ -177,7 +186,9 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
         <Stack gap={4} align="center">
           <UnstyledButton onClick={toggle} aria-expanded={opened}>
             <Group gap="xs" justify="center" wrap="nowrap">
-              <Text fw={700} size="lg" ta="center" lh={1.2}>
+              <Text fw={700} size="lg" ta="center" lh={1.2} style={{
+                color: direction === "next" ? COLORS.nextBeachStandLineColor : COLORS.prevBeachStandLineColor
+              }}>
                 {neighbor.name}
               </Text>
               <Badge
