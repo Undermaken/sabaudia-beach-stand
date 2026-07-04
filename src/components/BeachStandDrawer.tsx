@@ -91,8 +91,6 @@ export const BeachStandDrawer = () => {
       withCloseButton
       title={beachStand?.name}
       styles={{
-        // Titolo (nome dello stabilimento) centrato orizzontalmente: la close
-        // button è posizionata in assoluto così non sbilancia il centraggio.
         header: { position: "relative", justifyContent: "center" },
         close: {
           position: "absolute",
@@ -127,8 +125,8 @@ export const BeachStandDrawer = () => {
   );
 };
 
-/** Mostra i tempi di spostamento verso lo stabilimento precedente e successivo. */
-function NeighborTravelTimes({ beachStand }: { beachStand: BeachStand }) {
+
+const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand })  => {
   const previous = getBesideBeachStand(beachStand, "previous");
   const next = getBesideBeachStand(beachStand, "next");
 
@@ -158,26 +156,19 @@ type NeighborCardProps = {
   neighbor: BeachStand;
 };
 
-function NeighborCard({ direction, origin, neighbor }: NeighborCardProps) {
+const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
   const times = estimateTimeByDistance(origin, neighbor.coordinates);
   const distance = haversineDistance(origin, neighbor.coordinates);
 
   return (
     <Paper withBorder radius="md" p="md">
       <Stack gap="sm" align="center">
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
-          {DIRECTION_META[direction].label}{" "}
-          <Text span size="xs" tt="none" fw={500} c="dimmed">
-            ({DIRECTION_META[direction].note})
-          </Text>
-        </Text>
-
         <Group gap="xs" justify="center" wrap="nowrap">
           <Text fw={700} size="lg" ta="center" lh={1.2}>
             {neighbor.name}
           </Text>
           <Badge
-            variant="light"
+            variant="light"  
             color="gray"
             radius="sm"
             style={{ flexShrink: 0 }}
@@ -185,8 +176,19 @@ function NeighborCard({ direction, origin, neighbor }: NeighborCardProps) {
             {formatDistance(distance)}
           </Badge>
         </Group>
+        <Stack gap={2} align="center">
+        <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
+          <Text span size="xs" tt="none" fw={500} c="dimmed">
+            punto di servizio{" "} 
+          </Text>{DIRECTION_META[direction].label}{" "} 
+        </Text>  
+        <Text span size="xs" tt="none" fw={500} c="dimmed">
+            ({DIRECTION_META[direction].note})
+          </Text>
+</Stack> 
+        
 
-        <Group gap="md" justify="center" wrap="wrap">
+        <Group gap="xs" align="flex-start"  wrap="wrap" pt={4}>
           {MOVING_MODES.map(mode => (
             <ModeTile key={mode} mode={mode} minutes={times[mode]} />
           ))}
@@ -196,7 +198,7 @@ function NeighborCard({ direction, origin, neighbor }: NeighborCardProps) {
   );
 }
 
-function ModeTile({ mode, minutes }: { mode: MovingMode; minutes: number }) {
+const ModeTile = ({ mode, minutes }: { mode: MovingMode; minutes: number }) => {
   const { descrizione, color, Icon } = MODE_META[mode];
 
   return (
