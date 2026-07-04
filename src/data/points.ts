@@ -15,7 +15,7 @@ export type GPSWaypointsKml = {
   beachStands: BeachStand[];
 };
 
-export const gpsBeachStandKml = {
+const gpsBeachStandKml = {
   name: "GPSWpts-2026-07-03",
   beachStands: [
     {
@@ -66,7 +66,7 @@ export const gpsBeachStandKml = {
   ].map((bs, idx) => ({ ...bs, id: idx + 1 }))
 } satisfies GPSWaypointsKml;
 
-const beachStands = gpsBeachStandKml.beachStands;
+export const beachStands = gpsBeachStandKml.beachStands;
 // Bounding box [[minLng, minLat], [maxLng, maxLat]] that contains every
 // waypoint, so the map can zoom to fit them all on load.
 export const bounds: [[number, number], [number, number]] = [

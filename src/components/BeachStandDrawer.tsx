@@ -20,8 +20,11 @@ import {
 import { useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
 import type { ComponentType } from "react";
-import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
-import { type BeachStand, getBesideBeachStand } from "../data/points.ts";
+import {
+  selectedBeachStandAtom,
+  selectedBeachStandNeighbors
+} from "../atoms/selectedBeackStand.ts";
+import { type BeachStand } from "../data/points.ts";
 import type { GPSCoordinate } from "../types.ts";
 import {
   estimateTimeByDistance,
@@ -135,8 +138,7 @@ export const BeachStandDrawer = () => {
 };
 
 const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
-  const previous = getBesideBeachStand(beachStand, "previous");
-  const next = getBesideBeachStand(beachStand, "next");
+  const { next, previous } = useAtomValue(selectedBeachStandNeighbors);
 
   return (
     <Stack gap="sm" pb="md" maw={520} mx="auto" w="100%">
