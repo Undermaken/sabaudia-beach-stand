@@ -1,26 +1,32 @@
 import { atomWithReset } from "jotai/utils";
-import { getBesideBeachStand, type BeachStand } from "../data/points";
+import { beachStands, type BeachStand } from "../data/points";
 import { atom } from "jotai";
+import { haversineDistance } from "../utils/map";
 
 export const selectedBeachStandAtom = atomWithReset<BeachStand | undefined>(
   undefined
 );
 
-export const selectedBeachStandNeighbors = atom<{
-  previous: BeachStand | undefined;
-  next: BeachStand | undefined;
-}>(get => {
+type Direction = "next" | "previous";
+export type BeachStandNeighbor = BeachStand & {
+  direction: "next" | "previous";
+};
+export const selectedBeachStandNeighbors = atom<BeachStandNeighbor[]>(get => {
   const selectedBeachStand = get(selectedBeachStandAtom);
   if (!selectedBeachStand) {
-    return {
-      next: undefined,
-      previous: undefined
-    };
+    return [];
   }
-  const previous = getBesideBeachStand(selectedBeachStand, "previous");
-  const next = getBesideBeachStand(selectedBeachStand, "next");
-  return {
-    next,
-    previous
-  };
+  return beachStands
+    .slice(0, 5)
+    .filter(bs => bs.id !== selectedBeachStand.id)
+    .map(bs => ({
+      ...bs,
+      direction:
+        bs.id > selectedBeachStand.id ? "next" : ("previous" as Direction)
+    }))
+    .sort(
+      (a, b) =>
+        haversineDistance(a.coordinates, selectedBeachStand.coordinates) -
+        haversineDistance(b.coordinates, selectedBeachStand.coordinates)
+    );
 });

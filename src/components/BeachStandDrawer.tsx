@@ -22,7 +22,8 @@ import { useResetAtom } from "jotai/utils";
 import type { ComponentType } from "react";
 import {
   selectedBeachStandAtom,
-  selectedBeachStandNeighbors
+  selectedBeachStandNeighbors,
+  type BeachStandNeighbor
 } from "../atoms/selectedBeackStand.ts";
 import { type BeachStand } from "../data/points.ts";
 import type { GPSCoordinate } from "../types.ts";
@@ -63,7 +64,7 @@ const MODE_META: Record<
 };
 
 const DIRECTION_META: Record<
-  "previous" | "next",
+  BeachStandNeighbor["direction"],
   { label: string; note: string }
 > = {
   previous: { label: "Precedente", note: "direzione Latina" },
@@ -147,35 +148,23 @@ export const BeachStandDrawer = () => {
 };
 
 const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
-  const { next, previous } = useAtomValue(selectedBeachStandNeighbors);
+  const neighboors = useAtomValue(selectedBeachStandNeighbors);
 
   return (
     <Stack gap="sm" pb="md" maw={520} mx="auto" w="100%">
-      {previous && (
-        <NeighborCard
-          direction="previous"
-          origin={beachStand.coordinates}
-          neighbor={previous}
-        />
-      )}
-      {next && (
-        <NeighborCard
-          direction="next"
-          origin={beachStand.coordinates}
-          neighbor={next}
-        />
-      )}
+      {neighboors.map(neighboor => (
+        <NeighborCard origin={beachStand.coordinates} neighbor={neighboor} />
+      ))}
     </Stack>
   );
 };
 
 type NeighborCardProps = {
-  direction: "previous" | "next";
   origin: GPSCoordinate;
-  neighbor: BeachStand;
+  neighbor: BeachStandNeighbor;
 };
 
-const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
+const NeighborCard = ({ origin, neighbor }: NeighborCardProps) => {
   const times = estimateTimeByDistance(origin, neighbor.coordinates);
   const distance = haversineDistance(origin, neighbor.coordinates);
   const [opened, { toggle }] = useDisclosure(false);
@@ -186,9 +175,18 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
         <Stack gap={4} align="center">
           <UnstyledButton onClick={toggle} aria-expanded={opened}>
             <Group gap="xs" justify="center" wrap="nowrap">
-              <Text fw={700} size="lg" ta="center" lh={1.2} style={{
-                color: direction === "next" ? COLORS.nextBeachStandLineColor : COLORS.prevBeachStandLineColor
-              }}>
+              <Text
+                fw={700}
+                size="lg"
+                ta="center"
+                lh={1.2}
+                style={{
+                  color:
+                    neighbor.direction === "next"
+                      ? COLORS.nextBeachStandLineColor
+                      : COLORS.prevBeachStandLineColor
+                }}
+              >
                 {neighbor.name}
               </Text>
               <Badge
@@ -213,10 +211,10 @@ const NeighborCard = ({ direction, origin, neighbor }: NeighborCardProps) => {
             <Text span size="xs" tt="none" fw={500} c="dimmed">
               punto di servizio{" "}
             </Text>
-            {DIRECTION_META[direction].label}{" "}
+            {DIRECTION_META[neighbor.direction].label}{" "}
           </Text>
           <Text span size="xs" tt="none" fw={500} c="dimmed">
-            ({DIRECTION_META[direction].note})
+            ({DIRECTION_META[neighbor.direction].note})
           </Text>
         </Stack>
 

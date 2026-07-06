@@ -73,8 +73,6 @@ const gpsBeachStandKml = {
   ].map((bs, idx) => ({ ...bs, id: idx + 1 }))
 } satisfies GPSWaypointsKml;
 
-
-
 export const beachStands = gpsBeachStandKml.beachStands;
 // Bounding box [[minLng, minLat], [maxLng, maxLat]] that contains every
 // waypoint, so the map can zoom to fit them all on load.
@@ -83,7 +81,7 @@ export const getBounds: (
 ) => [[number, number], [number, number]] = coords => [
   [
     Math.min(...coords.map(w => w.longitude)),
-    Math.min(...coords.map(w => w.latitude)) 
+    Math.min(...coords.map(w => w.latitude))
   ],
   [
     Math.max(...coords.map(w => w.longitude)),

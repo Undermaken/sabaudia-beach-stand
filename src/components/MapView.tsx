@@ -76,7 +76,13 @@ const ResetViewControl = ({ onReset }: { onReset: () => void }) => {
 
 export const MapView = ({ ref }: MapViewProps) => {
   const beachStand = useAtomValue(selectedBeachStandAtom);
-  const { next, previous } = useAtomValue(selectedBeachStandNeighbors);
+  const beachStandNeighboors = useAtomValue(selectedBeachStandNeighbors);
+  const nextNeighboor = beachStandNeighboors.find(
+    bs => bs.direction === "next"
+  );
+  const previousNeighboor = beachStandNeighboors.find(
+    bs => bs.direction === "previous"
+  );
   const mapRef = useRef<MapRef | null>(null);
   const [dashedLines, setDashedLines] = useState<
     { line: GeoJSON.Feature<GeoJSON.LineString>; color: string }[]
@@ -124,24 +130,29 @@ export const MapView = ({ ref }: MapViewProps) => {
   // Keep the dashed lines in sync with the selection: one per existing neighbor.
   useEffect(() => {
     clearDashedLine();
-    if (!beachStand || (!next && !previous)) {
+
+    if (!beachStand || (!nextNeighboor && !previousNeighboor)) {
       return;
     }
-    if (next) {
+    if (nextNeighboor) {
       drawDashedLine(
-        next.coordinates,
+        nextNeighboor.coordinates,
         beachStand.coordinates,
-        COLORS.nextBeachStandLineColor
+        nextNeighboor.direction === "next"
+          ? COLORS.nextBeachStandLineColor
+          : COLORS.prevBeachStandLineColor
       );
     }
-    if (previous) {
+    if (previousNeighboor) {
       drawDashedLine(
-        previous.coordinates,
+        previousNeighboor.coordinates,
         beachStand.coordinates,
-        COLORS.prevBeachStandLineColor
+        previousNeighboor.direction === "next"
+          ? COLORS.nextBeachStandLineColor
+          : COLORS.prevBeachStandLineColor
       );
     }
-  }, [next, previous]);
+  }, [nextNeighboor, previousNeighboor]);
 
   // Frame the viewport on the selection + its neighbors (whole set if none selected).
   useEffect(() => {
@@ -152,7 +163,7 @@ export const MapView = ({ ref }: MapViewProps) => {
       return;
     }
     const bounds = getBounds(
-      [beachStand, next, previous]
+      [beachStand, nextNeighboor, previousNeighboor]
         .filter((bs: BeachStand | undefined): bs is BeachStand => !!bs)
         .map(bs => bs.coordinates)
     );
@@ -163,7 +174,7 @@ export const MapView = ({ ref }: MapViewProps) => {
       maxZoom: 13,
       duration: 600
     });
-  }, [beachStand, next, previous]);
+  }, [beachStand, nextNeighboor, previousNeighboor]);
 
   if (!MAPBOX_TOKEN) {
     return (
