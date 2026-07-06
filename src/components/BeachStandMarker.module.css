@@ -1,0 +1,38 @@
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #e03131;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.selected {
+  /* RGB channels of the selected color, reused by the pulse ring below. */
+  --marker-rgb: 112, 72, 232;
+  background-color: rgb(var(--marker-rgb));
+  transform: scale(1.3);
+  animation: marker-pulse 1.6s ease-out infinite;
+}
+
+@keyframes marker-pulse {
+  0% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(var(--marker-rgb), 0.5);
+  }
+  70% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 14px rgba(var(--marker-rgb), 0);
+  }
+  100% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(var(--marker-rgb), 0);
+  }
+}

@@ -1,66 +1,37 @@
-import { Box } from "@mantine/core";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Marker } from "react-map-gl/mapbox";
-import type { BeachStand } from "../data/points.ts";
-import { useSetAtom } from "jotai";
 import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
+import type { BeachStand } from "../data/points.ts";
+import classes from "./BeachStandMarker.module.css";
 
 type BeachStandProps = {
   beackStand: BeachStand;
 };
 
 /**
- * A single waypoint rendered as a rounded, colored box.
- * Click handling is intentionally left out for now.
+ * A beach stand shown as a red dot with a white stroke. The name is revealed on
+ * click (via the selected-stand drawer). When it matches the selected stand it
+ * changes color and pulses, to set it apart from the others.
  */
-export const WaypointMarker: React.FC<BeachStandProps> = ({
-  beackStand
-}: BeachStandProps) => {
+export const WaypointMarker = ({ beackStand }: BeachStandProps) => {
   const { latitude, longitude } = beackStand.coordinates;
   const selectBeachStand = useSetAtom(selectedBeachStandAtom);
+  const selected = useAtomValue(selectedBeachStandAtom);
+  const isSelected = selected?.id === beackStand.id;
+
   return (
     <Marker
       latitude={latitude}
       longitude={longitude}
-      anchor="bottom"
+      anchor="center"
       onClick={() => selectBeachStand(beackStand)}
     >
-      <Box
+      <div
         title={beackStand.name}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center"
-        }}
-      >
-        <Box
-          px="xs"
-          py={4}
-          style={{
-            backgroundColor: "var(--mantine-color-red-6)",
-            color: "var(--mantine-color-white)",
-            borderRadius: "var(--mantine-radius-md)",
-            border: "2px solid var(--mantine-color-white)",
-            boxShadow: "var(--mantine-shadow-sm)",
-            fontSize: "var(--mantine-font-size-xs)",
-            fontWeight: 600,
-            lineHeight: 1.2,
-            whiteSpace: "nowrap"
-          }}
-        >
-          {beackStand.name}
-        </Box>
-        {/* Downward triangle: its tip sits exactly on the coordinate. */}
-        <Box
-          style={{
-            width: 0,
-            height: 0,
-            marginTop: -1,
-            borderLeft: "6px solid transparent",
-            borderRight: "6px solid transparent",
-            borderTop: "8px solid var(--mantine-color-red-6)"
-          }}
-        />
-      </Box>
+        className={
+          isSelected ? `${classes.dot} ${classes.selected}` : classes.dot
+        }
+      />
     </Marker>
   );
 };
