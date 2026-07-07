@@ -17,16 +17,18 @@ export const selectedBeachStandNeighbors = atom<BeachStandNeighbor[]>(get => {
     return [];
   }
   return beachStands
-    .slice(0, 5)
     .filter(bs => bs.id !== selectedBeachStand.id)
     .map(bs => ({
       ...bs,
       direction:
-        bs.id > selectedBeachStand.id ? "next" : ("previous" as Direction)
+        bs.id > selectedBeachStand.id ? "next" : ("previous" as Direction),
+      distance: haversineDistance(
+        selectedBeachStand.coordinates,
+        bs.coordinates
+      )
     }))
-    .sort(
-      (a, b) =>
-        haversineDistance(a.coordinates, selectedBeachStand.coordinates) -
-        haversineDistance(b.coordinates, selectedBeachStand.coordinates)
-    );
+    .sort((a, b) => {
+      return a.distance - b.distance;
+    })
+    .slice(0, 5);
 });

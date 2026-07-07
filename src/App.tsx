@@ -45,6 +45,11 @@ export function App() {
             checked={activeSettings.includes("beach_stand_cover_area")}
             onChange={() => toggleSetting("beach_stand_cover_area")}
           />
+          <Switch
+            label="Mostra nome stabilimenti"
+            checked={activeSettings.includes("beach_stand_label")}
+            onChange={() => toggleSetting("beach_stand_label")}
+          />
         </Stack>
       </AppShell.Navbar>
 

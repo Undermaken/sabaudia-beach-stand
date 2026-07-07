@@ -1,7 +1,10 @@
 import { atom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 
-export const SETTINGS = ["beach_stand_cover_area"] as const;
+export const SETTINGS = [
+  "beach_stand_cover_area",
+  "beach_stand_label"
+] as const;
 export type Setting = (typeof SETTINGS)[number];
 
 export const activeSettingsAtom = atomWithReset<Setting[]>([]);

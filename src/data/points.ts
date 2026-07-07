@@ -69,6 +69,38 @@ const gpsBeachStandKml = {
         longitude: 13.0044203,
         altitude: 0
       }
+    },
+    {
+      name: "La Giunca",
+      coordinates: {
+        latitude: 41.30566487983613,
+        longitude: 13.00488977410809,
+        altitude: 0
+      }
+    },
+    {
+      name: "Lo Scoglio",
+      coordinates: {
+        latitude: 41.30529376962435,
+        longitude: 13.005219122459309,
+        altitude: 0
+      }
+    },
+    {
+      name: "Dove Inizia il Mare",
+      coordinates: {
+        latitude: 41.30452503460958,
+        longitude: 13.006042493337361,
+        altitude: 0
+      }
+    },
+    {
+      name: "Bar Carinci",
+      coordinates: {
+        latitude: 41.30500218154897,
+        longitude: 13.008365575442202,
+        altitude: 0
+      }
     }
   ].map((bs, idx) => ({ ...bs, id: idx + 1 }))
 } satisfies GPSWaypointsKml;

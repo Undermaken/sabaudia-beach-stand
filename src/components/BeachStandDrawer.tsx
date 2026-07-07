@@ -95,55 +95,80 @@ export const BeachStandDrawer = () => {
   const resetAtom = useResetAtom(selectedBeachStandAtom);
 
   return (
-    <Drawer
+    <Drawer.Root
       opened={beachStand !== undefined}
       onClose={resetAtom}
       position="bottom"
       size="auto"
       radius="md"
-      withCloseButton
-      // Keep the map behind the sheet fully interactive.
-      withOverlay={false}
       lockScroll={false}
       trapFocus={false}
       closeOnClickOutside={false}
-      title={beachStand?.name}
-      styles={{
-        header: { position: "relative", justifyContent: "center" },
-        close: {
-          position: "absolute",
-          top: "var(--mantine-spacing-md)",
-          right: "var(--mantine-spacing-md)"
-        },
-        title: {
-          margin: 0,
-          textAlign: "center",
-          fontWeight: 700,
-          // Larger than the NeighborCard titles (which use size="lg").
-          fontSize: "1.75rem"
-        },
-        // Let clicks/touches pass through the portal wrapper to the map;
-        // only the sheet content itself stays interactive.
-        inner: { pointerEvents: "none" },
-        // Bottom-sheet: at most half the screen height, body scrolls internally.
-        content: { maxHeight: "40dvh", pointerEvents: "auto" },
-        body: { overflowY: "auto" }
-      }}
     >
-      {/* Bottom-sheet grab handle. */}
-      <Box
-        mx="auto"
-        mb="md"
-        style={{
-          width: 40,
-          height: 4,
-          borderRadius: 999,
-          backgroundColor: "var(--mantine-color-gray-4)"
+      {/* No Drawer.Overlay: keep the map behind the sheet fully interactive. */}
+      <Drawer.Content
+        styles={{
+          // Let clicks/touches pass through the portal wrapper to the map;
+          // only the sheet content itself stays interactive.
+          inner: { pointerEvents: "none" },
+          // Bottom-sheet: at most half the screen height. Laid out as a
+          // column so the header (title/close) stays put and only the
+          // neighbor list below scrolls.
+          content: {
+            maxHeight: "40dvh",
+            pointerEvents: "auto",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
+          }
         }}
-      />
+      >
+        <Drawer.Header
+          style={{
+            position: "relative",
+            justifyContent: "center",
+            flexShrink: 0
+          }}
+        >
+          <Drawer.Title
+            style={{
+              margin: 0,
+              textAlign: "center",
+              fontWeight: 700,
+              // Larger than the NeighborCard titles (which use size="lg").
+              fontSize: "1.75rem"
+            }}
+          >
+            {beachStand?.name}
+          </Drawer.Title>
+          <Drawer.CloseButton
+            style={{
+              position: "absolute",
+              top: "var(--mantine-spacing-md)",
+              right: "var(--mantine-spacing-md)"
+            }}
+          />
+        </Drawer.Header>
 
-      {beachStand && <NeighborTravelTimes beachStand={beachStand} />}
-    </Drawer>
+        {/* Bottom-sheet grab handle. */}
+        <Box
+          mx="auto"
+          mt="sm"
+          mb="md"
+          style={{
+            width: 40,
+            height: 4,
+            borderRadius: 999,
+            backgroundColor: "var(--mantine-color-gray-4)",
+            flexShrink: 0
+          }}
+        />
+
+        <Drawer.Body style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+          {beachStand && <NeighborTravelTimes beachStand={beachStand} />}
+        </Drawer.Body>
+      </Drawer.Content>
+    </Drawer.Root>
   );
 };
 

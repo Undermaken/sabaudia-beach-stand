@@ -3,6 +3,7 @@ import { Marker } from "react-map-gl/mapbox";
 import { activeSettingsAtom } from "../atoms/settings.ts";
 import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
 import type { BeachStand } from "../data/points.ts";
+import { BeachStandLabel } from "./BeachStandLabel.tsx";
 import { ServiceAreaCircle } from "./ServiceAreaCircle.tsx";
 import classes from "./BeachStandMarker.module.css";
 
@@ -22,6 +23,7 @@ export const BeachStandMarker = ({ beachStand }: BeachStandProps) => {
   const activeSettings = useAtomValue(activeSettingsAtom);
   const isSelected = selected?.id === beachStand.id;
   const showServiceArea = activeSettings.includes("beach_stand_cover_area");
+  const showLabel = activeSettings.includes("beach_stand_label");
 
   return (
     <Marker
@@ -41,7 +43,9 @@ export const BeachStandMarker = ({ beachStand }: BeachStandProps) => {
         className={
           isSelected ? `${classes.dot} ${classes.selected}` : classes.dot
         }
-      />
+      >
+        {showLabel && <BeachStandLabel name={beachStand.name} />}
+      </div>
     </Marker>
   );
 };
