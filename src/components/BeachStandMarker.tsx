@@ -15,7 +15,7 @@ type BeachStandProps = {
  * click (via the selected-stand drawer). When it matches the selected stand it
  * changes color and pulses, to set it apart from the others.
  */
-export const WaypointMarker = ({ beachStand }: BeachStandProps) => {
+export const BeachStandMarker = ({ beachStand }: BeachStandProps) => {
   const { latitude, longitude } = beachStand.coordinates;
   const selectBeachStand = useSetAtom(selectedBeachStandAtom);
   const selected = useAtomValue(selectedBeachStandAtom);

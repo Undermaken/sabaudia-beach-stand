@@ -16,7 +16,7 @@ import {
   useControl
 } from "react-map-gl/mapbox";
 import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
-import { WaypointMarker } from "./BeachStandMarker.tsx";
+import { BeachStandMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAtomValue } from "jotai";
 import {
@@ -202,7 +202,7 @@ export const MapView = ({ ref }: MapViewProps) => {
         <NavigationControl position="top-right" />
         <ResetViewControl onReset={resetView} />
         {beachStands.map(beachStand => (
-          <WaypointMarker key={beachStand.name} beachStand={beachStand} />
+          <BeachStandMarker key={beachStand.name} beachStand={beachStand} />
         ))}
         {dashedLines.map(({ line: dashedLine, color }) => {
           // Unique source id per line — mapbox ignores sources sharing an id.
