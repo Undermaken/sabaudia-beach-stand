@@ -101,6 +101,62 @@ const gpsBeachStandKml = {
         longitude: 13.008365575442202,
         altitude: 0
       }
+    },
+    {
+      name: "Alma",
+      coordinates: {
+        latitude: 41.303009628096696,
+        longitude: 13.006859982973436,
+        altitude: 0
+      }
+    },
+    {
+      name: "Oasi di Kufra",
+      coordinates: {
+        latitude: 41.30035426821182,
+        longitude: 13.009588869297106,
+        altitude: 0
+      }
+    },
+    {
+      name: "Graziella Beach",
+      coordinates: {
+        latitude: 41.298657608951885,
+        longitude: 13.01018287256343,
+        altitude: 0
+      }
+    },
+    {
+      name: "Lido Azzurro",
+      coordinates: {
+        latitude: 41.29647044400552,
+        longitude: 13.012076625572151,
+        altitude: 0
+      }
+    },
+    {
+      name: "Le Dune",
+      coordinates: {
+        latitude: 41.2936742718317,
+        longitude: 13.01361787429254,
+        altitude: 0
+      }
+    },
+    {
+      name: "Duna 31.5",
+      coordinates: {
+        latitude: 41.286926448022534,
+        longitude: 13.017270112216476,
+        altitude: 0
+      }
+    },
+    {
+      name: "Le Scalette",
+      coordinates: {
+        latitude: 41.287045767272424,
+        longitude: 13.01855809951857,
+        altitude: 0
+      }
     }
   ].map((bs, idx) => ({ ...bs, id: idx + 1 }))
 } satisfies GPSWaypointsKml;

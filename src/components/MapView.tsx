@@ -171,7 +171,7 @@ export const MapView = ({ ref }: MapViewProps) => {
     mapRef?.current?.fitBounds(bounds, {
       // Extra bottom padding keeps the selection clear of the open bottom-sheet.
       padding: { ...MAP_PADDING, bottom: 380 },
-      maxZoom: 13,
+      maxZoom: Math.max(13, mapRef.current.getZoom()),
       duration: 600
     });
   }, [beachStand, nextNeighboor, previousNeighboor]);

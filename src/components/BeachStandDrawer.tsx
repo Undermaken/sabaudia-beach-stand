@@ -2,6 +2,7 @@ import {
   Badge,
   Box,
   Collapse,
+  Divider,
   Drawer,
   Group,
   Paper,
@@ -119,7 +120,9 @@ export const BeachStandDrawer = () => {
             pointerEvents: "auto",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden"
+            overflow: "hidden",
+            // Lift the sheet off the map beneath it (there's no overlay).
+            boxShadow: "0 -2px 16px rgba(0, 0, 0, 0.08)"
           }
         }}
       >
@@ -127,16 +130,18 @@ export const BeachStandDrawer = () => {
           style={{
             position: "relative",
             justifyContent: "center",
-            flexShrink: 0
+            flexShrink: 0,
+            paddingBottom: "var(--mantine-spacing-sm)"
           }}
         >
           <Drawer.Title
             style={{
               margin: 0,
               textAlign: "center",
-              fontWeight: 700,
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
               // Larger than the NeighborCard titles (which use size="lg").
-              fontSize: "1.75rem"
+              fontSize: "1.5rem"
             }}
           >
             {beachStand?.name}
@@ -153,18 +158,22 @@ export const BeachStandDrawer = () => {
         {/* Bottom-sheet grab handle. */}
         <Box
           mx="auto"
-          mt="sm"
-          mb="md"
+          mb="sm"
           style={{
-            width: 40,
+            width: 36,
             height: 4,
             borderRadius: 999,
-            backgroundColor: "var(--mantine-color-gray-4)",
+            backgroundColor: "var(--mantine-color-gray-3)",
             flexShrink: 0
           }}
         />
 
-        <Drawer.Body style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+        <Divider color="gray.1" style={{ flexShrink: 0 }} />
+
+        <Drawer.Body
+          style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+          pt="md"
+        >
           {beachStand && <NeighborTravelTimes beachStand={beachStand} />}
         </Drawer.Body>
       </Drawer.Content>
@@ -176,7 +185,7 @@ const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
   const neighboors = useAtomValue(selectedBeachStandNeighbors);
 
   return (
-    <Stack gap="sm" pb="md" maw={520} mx="auto" w="100%">
+    <Stack gap="md" pb="md" maw={520} mx="auto" w="100%">
       {neighboors.map(neighboor => (
         <NeighborCard origin={beachStand.coordinates} neighbor={neighboor} />
       ))}
@@ -193,33 +202,43 @@ const NeighborCard = ({ origin, neighbor }: NeighborCardProps) => {
   const times = estimateTimeByDistance(origin, neighbor.coordinates);
   const distance = haversineDistance(origin, neighbor.coordinates);
   const [opened, { toggle }] = useDisclosure(false);
+  const accentColor =
+    neighbor.direction === "next"
+      ? COLORS.nextBeachStandLineColor
+      : COLORS.prevBeachStandLineColor;
 
   return (
-    <Paper withBorder radius="md" p="md">
-      <Stack gap="sm" align="center">
-        <Stack gap={4} align="center">
-          <UnstyledButton onClick={toggle} aria-expanded={opened}>
-            <Group gap="xs" justify="center" wrap="nowrap">
-              <Text
-                fw={700}
-                size="lg"
-                ta="center"
-                lh={1.2}
+    <Paper radius="lg" p="md" shadow="xs" bg="gray.0">
+      <Stack gap="md">
+        <UnstyledButton onClick={toggle} aria-expanded={opened} w="100%">
+          <Group justify="space-between" wrap="nowrap" align="flex-start">
+            <Group gap="sm" wrap="nowrap" align="flex-start">
+              <Box
                 style={{
-                  color:
-                    neighbor.direction === "next"
-                      ? COLORS.nextBeachStandLineColor
-                      : COLORS.prevBeachStandLineColor
+                  width: 4,
+                  alignSelf: "stretch",
+                  borderRadius: 999,
+                  backgroundColor: accentColor
                 }}
-              >
-                {neighbor.name}
-              </Text>
-              <Badge
-                variant="light"
-                color="gray"
-                radius="sm"
-                style={{ flexShrink: 0 }}
-              >
+              />
+              <Stack gap={2}>
+                <Text
+                  fw={600}
+                  size="lg"
+                  lh={1.2}
+                  style={{ color: accentColor }}
+                >
+                  {neighbor.name}
+                </Text>
+                <Text size="xs" c="dimmed" style={{ letterSpacing: "0.02em" }}>
+                  {DIRECTION_META[neighbor.direction].label} ·{" "}
+                  {DIRECTION_META[neighbor.direction].note}
+                </Text>
+              </Stack>
+            </Group>
+
+            <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+              <Badge variant="light" color="gray" radius="sm">
                 {formatDistance(distance)}
               </Badge>
               <IconChevronDown
@@ -230,20 +249,10 @@ const NeighborCard = ({ origin, neighbor }: NeighborCardProps) => {
                 }}
               />
             </Group>
-          </UnstyledButton>
+          </Group>
+        </UnstyledButton>
 
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
-            <Text span size="xs" tt="none" fw={500} c="dimmed">
-              punto di servizio{" "}
-            </Text>
-            {DIRECTION_META[neighbor.direction].label}{" "}
-          </Text>
-          <Text span size="xs" tt="none" fw={500} c="dimmed">
-            ({DIRECTION_META[neighbor.direction].note})
-          </Text>
-        </Stack>
-
-        <Collapse expanded={opened}>
+        <Collapse expanded={opened} style={{ width: "100%" }}>
           <Group
             gap="xs"
             align="flex-start"
@@ -265,11 +274,11 @@ const ModeTile = ({ mode, minutes }: { mode: MovingMode; minutes: number }) => {
   const { descrizione, color, Icon } = MODE_META[mode];
 
   return (
-    <Stack gap={4} align="center" style={{ width: 88 }}>
+    <Stack gap={6} align="center" style={{ width: 90 }}>
       <ThemeIcon variant="light" color={color} radius="md" size={42}>
         <Icon size={22} />
       </ThemeIcon>
-      <Text fw={700} size="sm" lh={1}>
+      <Text fw={600} size="sm" lh={1}>
         {formatDuration(minutes)}
       </Text>
       <Text size="xs" c="dimmed" ta="center" lh={1.1}>
