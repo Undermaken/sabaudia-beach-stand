@@ -201,8 +201,8 @@ export const MapView = ({ ref }: MapViewProps) => {
       >
         <NavigationControl position="top-right" />
         <ResetViewControl onReset={resetView} />
-        {beachStands.map(beackStand => (
-          <WaypointMarker key={beackStand.name} beackStand={beackStand} />
+        {beachStands.map(beachStand => (
+          <WaypointMarker key={beachStand.name} beachStand={beachStand} />
         ))}
         {dashedLines.map(({ line: dashedLine, color }) => {
           // Unique source id per line — mapbox ignores sources sharing an id.

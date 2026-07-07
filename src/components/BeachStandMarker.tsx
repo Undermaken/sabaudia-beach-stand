@@ -5,7 +5,7 @@ import type { BeachStand } from "../data/points.ts";
 import classes from "./BeachStandMarker.module.css";
 
 type BeachStandProps = {
-  beackStand: BeachStand;
+  beachStand: BeachStand;
 };
 
 /**
@@ -13,21 +13,21 @@ type BeachStandProps = {
  * click (via the selected-stand drawer). When it matches the selected stand it
  * changes color and pulses, to set it apart from the others.
  */
-export const WaypointMarker = ({ beackStand }: BeachStandProps) => {
-  const { latitude, longitude } = beackStand.coordinates;
+export const WaypointMarker = ({ beachStand }: BeachStandProps) => {
+  const { latitude, longitude } = beachStand.coordinates;
   const selectBeachStand = useSetAtom(selectedBeachStandAtom);
   const selected = useAtomValue(selectedBeachStandAtom);
-  const isSelected = selected?.id === beackStand.id;
+  const isSelected = selected?.id === beachStand.id;
 
   return (
     <Marker
       latitude={latitude}
       longitude={longitude}
       anchor="center"
-      onClick={() => selectBeachStand(beackStand)}
+      onClick={() => selectBeachStand(beachStand)}
     >
       <div
-        title={beackStand.name}
+        title={beachStand.name}
         className={
           isSelected ? `${classes.dot} ${classes.selected}` : classes.dot
         }
