@@ -1,44 +1,58 @@
-import { useEffect, useState } from "react";
-import { useMap } from "react-map-gl/mapbox";
-import classes from "./ServiceAreaCircle.module.css";
+import { useMemo } from "react";
+import { Layer, Source } from "react-map-gl/mapbox";
+import type { GPSCoordinate } from "../types.ts";
 
 export const SERVICE_AREA_RADIUS_METERS = 700;
 export const SERVICE_AREA_OPACITY = 0.25;
+const CIRCLE_POINTS = 64;
 
 type ServiceAreaCircleProps = {
-  latitude: number;
+  id: string;
+  center: GPSCoordinate;
 };
 
-// Web Mercator ground resolution: meters per pixel at a given latitude/zoom.
-const metersPerPixel = (latitude: number, zoom: number): number =>
-  (156543.03392 * Math.cos((latitude * Math.PI) / 180)) / 2 ** zoom;
+// A real geographic polygon (not a fixed-pixel shape): Mapbox projects it
+// correctly at every zoom/pan/rotation, so the radius is always accurate.
+const buildCirclePolygon = (
+  center: GPSCoordinate,
+  radiusMeters: number
+): GeoJSON.Feature<GeoJSON.Polygon> => {
+  const km = radiusMeters / 1000;
+  const distanceX = km / (111.32 * Math.cos((center.latitude * Math.PI) / 180));
+  const distanceY = km / 110.574;
 
-export const ServiceAreaCircle = ({ latitude }: ServiceAreaCircleProps) => {
-  const { current: map } = useMap();
-  const [zoom, setZoom] = useState(() => map?.getZoom() ?? 0);
+  const ring = Array.from({ length: CIRCLE_POINTS }, (_, i) => {
+    const theta = (i / CIRCLE_POINTS) * (2 * Math.PI);
+    return [
+      center.longitude + distanceX * Math.cos(theta),
+      center.latitude + distanceY * Math.sin(theta)
+    ];
+  });
+  ring.push(ring[0]);
 
-  useEffect(() => {
-    if (!map) {
-      return;
-    }
-    const onZoom = () => setZoom(map.getZoom());
-    map.on("zoom", onZoom);
-    return () => {
-      map.off("zoom", onZoom);
-    };
-  }, [map]);
+  return {
+    type: "Feature",
+    properties: {},
+    geometry: { type: "Polygon", coordinates: [ring] }
+  };
+};
 
-  const diameterPx =
-    (2 * SERVICE_AREA_RADIUS_METERS) / metersPerPixel(latitude, zoom);
+export const ServiceAreaCircle = ({ id, center }: ServiceAreaCircleProps) => {
+  const circle = useMemo(
+    () => buildCirclePolygon(center, SERVICE_AREA_RADIUS_METERS),
+    [center]
+  );
 
   return (
-    <div
-      className={classes.circle}
-      style={{
-        width: diameterPx,
-        height: diameterPx,
-        opacity: SERVICE_AREA_OPACITY
-      }}
-    />
+    <Source id={id} type="geojson" data={circle}>
+      <Layer
+        id={`${id}-layer`}
+        type="fill"
+        paint={{
+          "fill-color": "#4dabf7",
+          "fill-opacity": SERVICE_AREA_OPACITY
+        }}
+      />
+    </Source>
   );
 };

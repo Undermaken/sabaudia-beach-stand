@@ -1,10 +1,22 @@
-import { AppShell, Burger, Group, Text, Title } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Group,
+  Stack,
+  Switch,
+  Text,
+  Title
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useAtomValue, useSetAtom } from "jotai";
+import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
 
 export function App() {
   const [opened, { toggle }] = useDisclosure();
+  const activeSettings = useAtomValue(activeSettingsAtom);
+  const toggleSetting = useSetAtom(toggleSettingAtom);
 
   return (
     <AppShell
@@ -24,9 +36,16 @@ export function App() {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <Text size="sm" c="dimmed">
-          Navigazione
-        </Text>
+        <Stack gap="sm">
+          <Text size="sm" c="dimmed">
+            Navigazione
+          </Text>
+          <Switch
+            label="Mostra raggio di servizio"
+            checked={activeSettings.includes("beach_stand_cover_area")}
+            onChange={() => toggleSetting("beach_stand_cover_area")}
+          />
+        </Stack>
       </AppShell.Navbar>
 
       <AppShell.Main
