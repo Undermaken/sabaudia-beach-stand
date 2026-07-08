@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Layer, Source } from "react-map-gl/mapbox";
 import type { GPSCoordinate } from "../types.ts";
 
-export const SERVICE_AREA_RADIUS_METERS = 700;
+export const SERVICE_AREA_RADIUS_METERS = 625;
 export const SERVICE_AREA_OPACITY = 0.25;
 const CIRCLE_POINTS = 64;
 

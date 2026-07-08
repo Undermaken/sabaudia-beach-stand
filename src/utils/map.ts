@@ -7,7 +7,7 @@ export const MOVING_MODES = [
   "sustainedRunning"
 ] as const;
 export type MovingMode = (typeof MOVING_MODES)[number];
-const estimatedSpeedsKmH: Record<MovingMode, number> = {
+export const estimatedSpeedsKmH: Record<MovingMode, number> = {
   walking: 5,
   fastWalking: 6.5,
   lightRunning: 8,
@@ -42,18 +42,19 @@ export const haversineDistance = (
   const toRadians = (degrees: number): number => degrees * (Math.PI / 180);
   const { latitude: lat1, longitude: lon1 } = start;
   const { latitude: lat2, longitude: lon2 } = end;
-  const R = 6371000; // Earth radius in meters
+  const earthRadiusMeters = 6371000;
+  const latRad1 = toRadians(lat1);
   const latRad2 = toRadians(lat2);
-  const delta1 = toRadians(lat2 - lat1);
-  const delta2 = toRadians(lon2 - lon1);
+  const deltaLatRad = toRadians(lat2 - lat1);
+  const deltaLonRad = toRadians(lon2 - lon1);
 
   const a =
-    Math.sin(delta1 / 2) * Math.sin(delta1 / 2) +
-    Math.cos(latRad2) *
+    Math.sin(deltaLatRad / 2) * Math.sin(deltaLatRad / 2) +
+    Math.cos(latRad1) *
       Math.cos(latRad2) *
-      Math.sin(delta2 / 2) *
-      Math.sin(delta2 / 2);
+      Math.sin(deltaLonRad / 2) *
+      Math.sin(deltaLonRad / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c; // Distance in meters
+  return earthRadiusMeters * c;
 };

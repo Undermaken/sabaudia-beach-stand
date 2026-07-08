@@ -1,59 +1,143 @@
 import { beachStands, type BeachStand } from "../data/points.ts";
 import {
+  estimatedSpeedsKmH,
   estimateTimeByDistance,
-  haversineDistance,
-  type MovingMode
+  haversineDistance
 } from "./map.ts";
 import { formatDuration } from "./time.ts";
 
-type Meter = number;
-type MaxDistanceBeetweenStand = {
-  distance: number;
+type Meters = number;
+type Minutes = number;
+
+type AdjacentStandGap = {
+  distanceMeters: Meters;
+  walkingMinutes: Minutes;
   standA: BeachStand;
   standB: BeachStand;
 };
 
-const formatWalkingTime = (times: Record<MovingMode, number>) =>
-  `${formatDuration(times.walking)} (camminata)`;
+type UnservedStandGap = AdjacentStandGap & {
+  unservedSpanMeters: Meters;
+};
 
-const stats = () => {
-  const distanceBetweenStands: MaxDistanceBeetweenStand[] = [];
-  const totalLineCovered: Meter = beachStands.reduce((acc, curr, idx) => {
-    if (idx + 1 >= beachStands.length) {
-      return acc;
+const MAX_ACCEPTABLE_ROUND_TRIP_MINUTES = 15;
+const WALKING_SPEED_METERS_PER_MINUTE =
+  (estimatedSpeedsKmH.walking * 1000) / 60;
+const MAX_ACCEPTABLE_ROUND_TRIP_METERS =
+  WALKING_SPEED_METERS_PER_MINUTE * MAX_ACCEPTABLE_ROUND_TRIP_MINUTES;
+const MAX_DISTANCE_TO_STAND_METERS = MAX_ACCEPTABLE_ROUND_TRIP_METERS / 2;
+const MAX_COVERED_GAP_BETWEEN_STANDS_METERS = MAX_DISTANCE_TO_STAND_METERS * 2;
+
+const formatWalkingMinutes = (minutes: Minutes) =>
+  `${formatDuration(minutes)} (camminata)`;
+
+const formatStandGap = (gap: AdjacentStandGap) =>
+  `${(gap.distanceMeters / 1000).toFixed(2)}km tra ${gap.standA.name} e ${gap.standB.name} (${formatWalkingMinutes(gap.walkingMinutes)})`;
+
+const getAdjacentStandGaps = (stands: BeachStand[]): AdjacentStandGap[] => {
+  const gaps: AdjacentStandGap[] = [];
+
+  stands.forEach((stand, index) => {
+    const nextStand = stands[index + 1];
+    if (!nextStand) {
+      return;
     }
 
-    const next = beachStands[idx + 1];
-    const distanceBetween = haversineDistance(
-      curr.coordinates,
-      next.coordinates
+    const distanceMeters = haversineDistance(
+      stand.coordinates,
+      nextStand.coordinates
     );
 
-    distanceBetweenStands.push({
-      distance: distanceBetween,
-      standA: curr,
-      standB: next
+    gaps.push({
+      distanceMeters,
+      walkingMinutes: estimateTimeByDistance(distanceMeters).walking,
+      standA: stand,
+      standB: nextStand
     });
+  });
 
-    return acc + distanceBetween;
-  }, 0);
+  return gaps;
+};
 
+const stats = () => {
   console.log(
-    `Linea totale coperta: ${(totalLineCovered / 1000).toFixed(2)}km`
+    `una persona comune è disposta a camminare per un massimo di ${MAX_ACCEPTABLE_ROUND_TRIP_MINUTES} min (andata + ritorno) per raggiungere un punto di servizio.`
+  );
+  console.log(
+    `Questo corrisponde a ${MAX_ACCEPTABLE_ROUND_TRIP_METERS.toFixed(2)}m percorsi in totale per un adulto medio.`
+  );
+  console.log(
+    `Quindi deve trovarsi al massimo a ${MAX_DISTANCE_TO_STAND_METERS.toFixed(2)}m di distanza dal punto di servizio.`
   );
 
-  // it they are uniform distributed
-  const standPerMeters = totalLineCovered / beachStands.length;
-
-  console.log(
-    `Un servizio ogni: ${(standPerMeters / 1000).toFixed(2)}km (${formatWalkingTime(estimateTimeByDistance(standPerMeters))})`
-  );
-
-  distanceBetweenStands.sort((a, b) => b.distance - a.distance);
-  distanceBetweenStands.forEach(s =>
+  const adjacentStandGaps = getAdjacentStandGaps(beachStands);
+  if (adjacentStandGaps.length === 0) {
     console.log(
-      `${(s.distance / 1000).toFixed(2)}km tra ${s.standA.name} e ${s.standB.name} (${formatWalkingTime(estimateTimeByDistance(s.distance))})`
-    )
+      "Servono almeno due punti di servizio per calcolare le distanze."
+    );
+    return;
+  }
+
+  const totalMeasuredLineMeters = adjacentStandGaps.reduce(
+    (total, gap) => total + gap.distanceMeters,
+    0
+  );
+
+  console.log(
+    `Linea totale misurata: ${(totalMeasuredLineMeters / 1000).toFixed(2)}km`
+  );
+
+  // Uniform spacing uses the number of intervals between stands, not the number
+  // of stands.
+  const averageAdjacentGapMeters =
+    totalMeasuredLineMeters / adjacentStandGaps.length;
+
+  console.log(
+    `Distanza media tra servizi adiacenti: ${(averageAdjacentGapMeters / 1000).toFixed(2)}km (${formatWalkingMinutes(estimateTimeByDistance(averageAdjacentGapMeters).walking)})`
+  );
+
+  const gapsByDistanceDescending = [...adjacentStandGaps].sort(
+    (gapA, gapB) => gapB.distanceMeters - gapA.distanceMeters
+  );
+  gapsByDistanceDescending.forEach(gap => {
+    console.log(formatStandGap(gap));
+  });
+
+  const gapsBeyondServiceCoverage = gapsByDistanceDescending.filter(
+    gap => gap.distanceMeters > MAX_COVERED_GAP_BETWEEN_STANDS_METERS
+  );
+  console.log(
+    "queste sono le tratte in cui la distanza tra due servizi supera la copertura massima combinata"
+  );
+  gapsBeyondServiceCoverage.forEach(gap => {
+    console.log(formatStandGap(gap));
+  });
+
+  // The unserved segment is the part left after subtracting both stands'
+  // one-way service ranges from the gap.
+  const unservedStandGaps: UnservedStandGap[] = gapsBeyondServiceCoverage.map(
+    gap => ({
+      ...gap,
+      unservedSpanMeters:
+        gap.distanceMeters - MAX_COVERED_GAP_BETWEEN_STANDS_METERS
+    })
+  );
+
+  console.log("questi sono gli spazi non serviti al centro di ogni tratta");
+  unservedStandGaps.forEach(gap => {
+    console.log(
+      `${gap.unservedSpanMeters.toFixed(2)}m tra ${gap.standA.name} e ${gap.standB.name}`
+    );
+  });
+
+  const totalUnservedSpanMeters = unservedStandGaps.reduce(
+    (total, gap) => total + gap.unservedSpanMeters,
+    0
+  );
+  const unservedSpanRatio = totalUnservedSpanMeters / totalMeasuredLineMeters;
+
+  console.log(
+    `per un totale di spazio "non servito" di ${(totalUnservedSpanMeters / 1000).toFixed(2)}km (${(unservedSpanRatio * 100).toFixed(2)}%)`
   );
 };
 
