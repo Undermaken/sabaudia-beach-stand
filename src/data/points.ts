@@ -1,4 +1,4 @@
-import type { GPSCoordinate } from "../types";
+import type { GPSCoordinate } from "../types.ts";
 
 export type BeachStand = {
   id: number;
@@ -155,6 +155,46 @@ const gpsBeachStandKml = {
       coordinates: {
         latitude: 41.287045767272424,
         longitude: 13.01855809951857,
+        altitude: 0
+      }
+    },
+    {
+      name: "I gemelli",
+      coordinates: {
+        latitude: 41.283426666090456,
+        longitude: 13.019512917067255,
+        altitude: 0
+      }
+    },
+    {
+      name: "La Spiaggia",
+      coordinates: {
+        latitude: 41.2779997267896,
+        longitude: 13.023015261970972,
+        altitude: 0
+      }
+    },
+    {
+      name: "Lilandà",
+      coordinates: {
+        latitude: 41.269497278245,
+        longitude: 13.028168181697112,
+        altitude: 0
+      }
+    },
+    {
+      name: "Le Streghe",
+      coordinates: {
+        latitude: 41.262071548936845,
+        longitude: 13.030785465923417,
+        altitude: 0
+      }
+    },
+    {
+      name: "Le Saporetti",
+      coordinates: {
+        latitude: 41.24811318892581,
+        longitude: 13.036409501150516,
         altitude: 0
       }
     }

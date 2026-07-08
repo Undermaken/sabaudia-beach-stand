@@ -1,4 +1,4 @@
-import type { GPSCoordinate } from "../types";
+import type { GPSCoordinate } from "../types.ts";
 export const MOVING_MODES = [
   "walking",
   "fastWalking",
@@ -15,11 +15,17 @@ const estimatedSpeedsKmH: Record<MovingMode, number> = {
   sustainedRunning: 12
 };
 
-export const estimateTimeByDistance = (
+export const estimateTimeByCoordsDistance = (
   pointA: GPSCoordinate,
   pointB: GPSCoordinate
 ): Record<MovingMode, number> => {
   const distanceInMeters = haversineDistance(pointA, pointB);
+  return estimateTimeByDistance(distanceInMeters);
+};
+
+export const estimateTimeByDistance = (
+  distanceInMeters: number
+): Record<MovingMode, number> => {
   return Object.fromEntries(
     MOVING_MODES.map(mode => {
       const timeInMinutes =

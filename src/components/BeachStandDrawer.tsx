@@ -29,12 +29,13 @@ import {
 import { type BeachStand } from "../data/points.ts";
 import type { GPSCoordinate } from "../types.ts";
 import {
-  estimateTimeByDistance,
+  estimateTimeByCoordsDistance,
   haversineDistance,
   MOVING_MODES,
   type MovingMode
 } from "../utils/map.ts";
 import { COLORS } from "../utils/colors.ts";
+import { formatDuration } from "../utils/time.ts";
 
 /** Human-readable label, accent color and icon for each moving mode. */
 const MODE_META: Record<
@@ -71,15 +72,6 @@ const DIRECTION_META: Record<
   previous: { label: "Precedente", note: "direzione Latina" },
   next: { label: "Successivo", note: "direzione San Felice" }
 };
-
-function formatDuration(minutes: number): string {
-  if (minutes < 1) return "<1 min";
-  const total = Math.round(minutes);
-  if (total < 60) return `${total} min`;
-  const hours = Math.floor(total / 60);
-  const rest = total % 60;
-  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
-}
 
 function formatDistance(meters: number): string {
   return meters < 1000
@@ -187,7 +179,11 @@ const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
   return (
     <Stack gap="md" pb="md" maw={520} mx="auto" w="100%">
       {neighboors.map(neighboor => (
-        <NeighborCard origin={beachStand.coordinates} neighbor={neighboor} />
+        <NeighborCard
+          key={neighboor.id}
+          origin={beachStand.coordinates}
+          neighbor={neighboor}
+        />
       ))}
     </Stack>
   );
@@ -199,7 +195,7 @@ type NeighborCardProps = {
 };
 
 const NeighborCard = ({ origin, neighbor }: NeighborCardProps) => {
-  const times = estimateTimeByDistance(origin, neighbor.coordinates);
+  const times = estimateTimeByCoordsDistance(origin, neighbor.coordinates);
   const distance = haversineDistance(origin, neighbor.coordinates);
   const [opened, { toggle }] = useDisclosure(false);
   const accentColor =
@@ -278,7 +274,7 @@ const ModeTile = ({ mode, minutes }: { mode: MovingMode; minutes: number }) => {
       <ThemeIcon variant="light" color={color} radius="md" size={42}>
         <Icon size={22} />
       </ThemeIcon>
-      <Text fw={600} size="sm" lh={1}>
+      <Text fw={600} style={{ color: "black" }} size="sm" lh={1}>
         {formatDuration(minutes)}
       </Text>
       <Text size="xs" c="dimmed" ta="center" lh={1.1}>

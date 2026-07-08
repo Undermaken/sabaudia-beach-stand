@@ -152,7 +152,13 @@ export const MapView = ({ ref }: MapViewProps) => {
           : COLORS.prevBeachStandLineColor
       );
     }
-  }, [nextNeighboor, previousNeighboor]);
+  }, [
+    beachStand,
+    nextNeighboor,
+    previousNeighboor,
+    clearDashedLine,
+    drawDashedLine
+  ]);
 
   // Frame the viewport on the selection + its neighbors (whole set if none selected).
   useEffect(() => {

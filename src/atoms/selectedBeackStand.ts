@@ -29,6 +29,5 @@ export const selectedBeachStandNeighbors = atom<BeachStandNeighbor[]>(get => {
     }))
     .sort((a, b) => {
       return a.distance - b.distance;
-    })
-    .slice(0, 5);
+    });
 });
