@@ -21,6 +21,7 @@ import {
   IconChartBar,
   IconCurrencyEuro,
   IconFileTypePdf,
+  IconGripVertical,
   IconSettings,
   type IconProps,
   IconRoute,
@@ -471,8 +472,20 @@ const WalkingTimeControl = ({
           min={4}
           max={30}
           step={1}
+          size="lg"
+          thumbChildren={<IconGripVertical size={18} stroke={2.4} />}
+          thumbSize={34}
           color="teal"
           label={currentValue => `${currentValue} min`}
+          styles={{
+            thumb: {
+              color: "var(--mantine-color-teal-7)",
+              cursor: "grab"
+            },
+            track: {
+              cursor: "pointer"
+            }
+          }}
           marks={[
             { value: 5, label: "5" },
             { value: 10, label: "10" },
@@ -482,11 +495,6 @@ const WalkingTimeControl = ({
           ]}
           className={classes.noPrint}
         />
-        <Text size="sm" c="dimmed">
-          Il PDF usa il valore selezionato al momento della stampa. Cambiando lo
-          slider si aggiornano spazio non servito, persone potenzialmente
-          impattate e stima economica.
-        </Text>
       </Stack>
     </Box>
   );
