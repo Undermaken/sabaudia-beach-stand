@@ -11,17 +11,25 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { IconChartBar } from "@tabler/icons-react";
 import { useAtomValue, useSetAtom } from "jotai";
+import { serviceCoverageMaxDistanceToStandMetersAtom } from "./atoms/serviceCoverage.ts";
 import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
 import { ServiceCoverageReportModal } from "./components/ServiceCoverageReportModal.tsx";
-import { SERVICE_AREA_RADIUS_METERS } from "./components/ServiceAreaCircle.tsx";
+
+const meterFormatter = new Intl.NumberFormat("it-IT", {
+  maximumFractionDigits: 0
+});
+const formatMeters = (meters: number) => `${meterFormatter.format(meters)} m`;
 
 export const App = () => {
   const [opened, { toggle }] = useDisclosure();
   const [reportOpened, { close: closeReport, open: openReport }] =
     useDisclosure(false);
   const activeSettings = useAtomValue(activeSettingsAtom);
+  const serviceCoverageMaxDistanceToStandMeters = useAtomValue(
+    serviceCoverageMaxDistanceToStandMetersAtom
+  );
   const toggleSetting = useSetAtom(toggleSettingAtom);
 
   return (
@@ -47,7 +55,7 @@ export const App = () => {
             Navigazione
           </Text>
           <Switch
-            label={`Mostra raggio di servizio (${SERVICE_AREA_RADIUS_METERS.toFixed(2)}m)`}
+            label={`Mostra raggio di servizio (${formatMeters(serviceCoverageMaxDistanceToStandMeters)})`}
             checked={activeSettings.includes("beach_stand_cover_area")}
             onChange={() => toggleSetting("beach_stand_cover_area")}
           />

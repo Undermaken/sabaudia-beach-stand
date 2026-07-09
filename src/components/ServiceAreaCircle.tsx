@@ -1,9 +1,9 @@
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { Layer, Source } from "react-map-gl/mapbox";
+import { serviceCoverageMaxDistanceToStandMetersAtom } from "../atoms/serviceCoverage.ts";
 import type { GPSCoordinate } from "../types.ts";
-import { serviceCoverageReport } from "../utils/serviceCoverage.ts";
 
-export const SERVICE_AREA_RADIUS_METERS = serviceCoverageReport.assumptions.maxAcceptableRoundTripMeters / 2;
 export const SERVICE_AREA_OPACITY = 0.25;
 const CIRCLE_POINTS = 64;
 
@@ -39,9 +39,12 @@ const buildCirclePolygon = (
 };
 
 export const ServiceAreaCircle = ({ id, center }: ServiceAreaCircleProps) => {
+  const serviceAreaRadiusMeters = useAtomValue(
+    serviceCoverageMaxDistanceToStandMetersAtom
+  );
   const circle = useMemo(
-    () => buildCirclePolygon(center, SERVICE_AREA_RADIUS_METERS),
-    [center]
+    () => buildCirclePolygon(center, serviceAreaRadiusMeters),
+    [center, serviceAreaRadiusMeters]
   );
 
   return (

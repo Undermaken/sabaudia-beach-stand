@@ -29,16 +29,13 @@ import {
   IconWalk,
   IconX
 } from "@tabler/icons-react";
+import { useEffect, type ComponentType, type ReactNode } from "react";
+import { useAtom, useAtomValue } from "jotai";
 import {
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentType,
-  type ReactNode
-} from "react";
+  serviceCoverageMaxRoundTripMinutesAtom,
+  serviceCoverageReportAtom
+} from "../atoms/serviceCoverage.ts";
 import {
-  createServiceCoverageReport,
-  SERVICE_COVERAGE_ASSUMPTIONS,
   type SegmentSummary,
   type ServiceCoverageReport,
   type UnservedStandGap
@@ -99,16 +96,10 @@ export const ServiceCoverageReportModal = ({
   opened,
   onClose
 }: ServiceCoverageReportModalProps) => {
-  const [maxRoundTripMinutes, setMaxRoundTripMinutes] = useState(
-    SERVICE_COVERAGE_ASSUMPTIONS.maxAcceptableRoundTripMinutes
+  const [maxRoundTripMinutes, setMaxRoundTripMinutes] = useAtom(
+    serviceCoverageMaxRoundTripMinutesAtom
   );
-  const report = useMemo(
-    () =>
-      createServiceCoverageReport({
-        maxAcceptableRoundTripMinutes: maxRoundTripMinutes
-      }),
-    [maxRoundTripMinutes]
-  );
+  const report = useAtomValue(serviceCoverageReportAtom);
   const printReport = () => openServiceCoverageReportPrintDocument(report);
 
   useEffect(() => {
