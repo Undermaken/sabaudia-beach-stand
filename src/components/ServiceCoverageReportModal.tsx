@@ -29,8 +29,9 @@ import {
   IconWalk,
   IconX
 } from "@tabler/icons-react";
-import { useEffect, type ComponentType, type ReactNode } from "react";
 import { useAtom, useAtomValue } from "jotai";
+import { useRef, type ComponentType, type ReactNode } from "react";
+import { useReactToPrint } from "react-to-print";
 import {
   serviceCoverageMaxRoundTripMinutesAtom,
   serviceCoverageReportAtom
@@ -40,7 +41,7 @@ import {
   type ServiceCoverageReport,
   type UnservedStandGap
 } from "../utils/serviceCoverage.ts";
-import { openServiceCoverageReportPrintDocument } from "../utils/serviceCoveragePrint.tsx";
+import { serviceCoveragePrintPageStyle } from "../utils/serviceCoveragePrint.ts";
 import { formatDuration } from "../utils/time.ts";
 import classes from "./ServiceCoverageReportModal.module.css";
 
@@ -50,12 +51,14 @@ type ServiceCoverageReportModalProps = {
 };
 
 type IconComponent = ComponentType<IconProps>;
+type ReportMode = "print" | "screen";
 type ReportProps = {
   report: ServiceCoverageReport;
 };
 type InteractiveReportProps = ReportProps & {
   maxRoundTripMinutes: number;
   onMaxRoundTripMinutesChange: (value: number) => void;
+  mode: ReportMode;
 };
 
 const integerFormatter = new Intl.NumberFormat("it-IT", {
@@ -100,19 +103,13 @@ export const ServiceCoverageReportModal = ({
     serviceCoverageMaxRoundTripMinutesAtom
   );
   const report = useAtomValue(serviceCoverageReportAtom);
-  const printReport = () => openServiceCoverageReportPrintDocument(report);
-
-  useEffect(() => {
-    if (!opened) {
-      return undefined;
-    }
-
-    document.body.classList.add("service-report-open");
-
-    return () => {
-      document.body.classList.remove("service-report-open");
-    };
-  }, [opened]);
+  const printContentRef = useRef<HTMLDivElement>(null);
+  const printReport = useReactToPrint({
+    contentRef: printContentRef,
+    documentTitle: () =>
+      `Report servizi lungomare Sabaudia - ${maxRoundTripMinutes} minuti`,
+    pageStyle: serviceCoveragePrintPageStyle
+  });
 
   return (
     <Modal
@@ -148,7 +145,7 @@ export const ServiceCoverageReportModal = ({
           <Group gap="xs" wrap="nowrap">
             <Button
               leftSection={<IconFileTypePdf size={18} />}
-              onClick={printReport}
+              onClick={() => printReport()}
               variant="filled"
               color="teal"
             >
@@ -167,23 +164,53 @@ export const ServiceCoverageReportModal = ({
           </Group>
         </Group>
 
-        <ReportHero report={report} />
-        <ReportBody
+        <ServiceCoverageReportContent
+          mode="screen"
           report={report}
           maxRoundTripMinutes={maxRoundTripMinutes}
           onMaxRoundTripMinutesChange={setMaxRoundTripMinutes}
         />
       </Box>
+      <Box className={classes.printHost} aria-hidden="true">
+        <Box
+          ref={printContentRef}
+          className={`${classes.reportShell} ${classes.printRoot} ${classes.printDocument}`}
+        >
+          <ServiceCoverageReportContent
+            mode="print"
+            report={report}
+            maxRoundTripMinutes={maxRoundTripMinutes}
+            onMaxRoundTripMinutesChange={setMaxRoundTripMinutes}
+          />
+        </Box>
+      </Box>
     </Modal>
   );
 };
+
+const ServiceCoverageReportContent = ({
+  maxRoundTripMinutes,
+  mode,
+  onMaxRoundTripMinutesChange,
+  report
+}: InteractiveReportProps) => (
+  <>
+    <ReportHero report={report} />
+    <ReportBody
+      mode={mode}
+      report={report}
+      maxRoundTripMinutes={maxRoundTripMinutes}
+      onMaxRoundTripMinutesChange={onMaxRoundTripMinutesChange}
+    />
+  </>
+);
 
 const ReportHero = ({ report }: ReportProps) => {
   const { assumptions } = report;
 
   return (
     <Box className={classes.hero}>
-      <Stack gap="lg" maw={860}>
+      <Stack gap="lg" className={classes.heroContent}>
         <Badge color="orange" variant="filled" radius="sm">
           Lungomare di Sabaudia
         </Badge>
@@ -202,7 +229,7 @@ const ReportHero = ({ report }: ReportProps) => {
         <SimpleGrid
           cols={{ base: 1, sm: 3 }}
           spacing="sm"
-          className={classes.heroFacts}
+          className={`${classes.heroFacts} ${classes.printGrid3}`}
         >
           <HeroFact
             label="Tempo massimo"
@@ -227,6 +254,7 @@ const ReportHero = ({ report }: ReportProps) => {
 
 const ReportBody = ({
   maxRoundTripMinutes,
+  mode,
   onMaxRoundTripMinutesChange,
   report
 }: InteractiveReportProps) => {
@@ -239,6 +267,7 @@ const ReportBody = ({
         title="Quanto tempo sei disposto a camminare?"
       >
         <WalkingTimeControl
+          mode={mode}
           report={report}
           value={maxRoundTripMinutes}
           onChange={onMaxRoundTripMinutesChange}
@@ -246,7 +275,11 @@ const ReportBody = ({
       </Section>
 
       <Section eyebrow="Sintesi" title="Il problema in quattro numeri">
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+        <SimpleGrid
+          cols={{ base: 1, sm: 2 }}
+          spacing="md"
+          className={classes.printGrid2}
+        >
           <MetricCard
             icon={IconRoute}
             label="Lunghezza lungomare"
@@ -279,7 +312,11 @@ const ReportBody = ({
       </Section>
 
       <Section eyebrow="Metodo" title="Le ipotesi di partenza">
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="sm">
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, md: 4 }}
+          spacing="sm"
+          className={classes.printGrid4}
+        >
           <AssumptionPill
             label="Camminata"
             value={`${assumptions.walkingSpeedKmH} km/h`}
@@ -318,6 +355,8 @@ const ReportBody = ({
       <Section eyebrow="Distribuzione" title="Nord e sud non si assomigliano">
         <SegmentComparison report={report} />
       </Section>
+
+      <ReportDisclaimer />
     </Stack>
   );
 };
@@ -417,14 +456,17 @@ const AssumptionPill = ({
 );
 
 const WalkingTimeControl = ({
+  mode,
   onChange,
   report,
   value
 }: ReportProps & {
+  mode: ReportMode;
   onChange: (value: number) => void;
   value: number;
 }) => {
   const { assumptions } = report;
+  const isPrint = mode === "print";
 
   return (
     <Box className={classes.walkingControl}>
@@ -436,18 +478,22 @@ const WalkingTimeControl = ({
                 <IconSettings size={19} />
               </ThemeIcon>
               <Badge color="teal" radius="sm" variant="filled">
-                Interattivo
+                {isPrint ? "Parametro usato" : "Interattivo"}
               </Badge>
             </Group>
             <Text fw={850} className={classes.walkingControlTitle}>
-              Trascina lo slider: tutti i numeri si aggiornano subito
+              {isPrint
+                ? "Tempo massimo considerato nei calcoli"
+                : "Trascina lo slider: tutti i numeri si aggiornano subito"}
             </Text>
             <Text c="dimmed">
-              L'assunzione centrale è questa: un adulto sarebbe disposto a
-              camminare per {value} minuti in totale, quindi andata e ritorno,
-              per raggiungere un punto di servizio. Con una velocità media
-              stimata di {assumptions.walkingSpeedKmH} km/h, significa accettare
-              un servizio distante al massimo{" "}
+              {isPrint
+                ? "In questa stampa considero un adulto disposto a camminare per "
+                : "L'assunzione centrale è questa: un adulto sarebbe disposto a camminare per "}
+              {value} minuti in totale, quindi andata e ritorno, per raggiungere
+              un punto di servizio. Con una velocità media stimata di{" "}
+              {assumptions.walkingSpeedKmH} km/h, significa accettare un
+              servizio distante al massimo{" "}
               {formatMeters(assumptions.maxDistanceToStandMeters)} dalla propria
               posizione in spiaggia.
             </Text>
@@ -459,35 +505,37 @@ const WalkingTimeControl = ({
             </Text>
           </Box>
         </Group>
-        <Slider
-          value={value}
-          onChange={onChange}
-          min={4}
-          max={30}
-          step={1}
-          size="lg"
-          thumbChildren={<IconGripVertical size={18} stroke={2.4} />}
-          thumbSize={34}
-          color="teal"
-          label={currentValue => `${currentValue} min`}
-          styles={{
-            thumb: {
-              color: "var(--mantine-color-teal-7)",
-              cursor: "grab"
-            },
-            track: {
-              cursor: "pointer"
-            }
-          }}
-          marks={[
-            { value: 5, label: "5" },
-            { value: 10, label: "10" },
-            { value: 15, label: "15" },
-            { value: 20, label: "20" },
-            { value: 30, label: "30" }
-          ]}
-          className={classes.noPrint}
-        />
+        {!isPrint && (
+          <Slider
+            value={value}
+            onChange={onChange}
+            min={4}
+            max={30}
+            step={1}
+            size="lg"
+            thumbChildren={<IconGripVertical size={18} stroke={2.4} />}
+            thumbSize={34}
+            color="teal"
+            label={currentValue => `${currentValue} min`}
+            styles={{
+              thumb: {
+                color: "var(--mantine-color-teal-7)",
+                cursor: "grab"
+              },
+              track: {
+                cursor: "pointer"
+              }
+            }}
+            marks={[
+              { value: 5, label: "5" },
+              { value: 10, label: "10" },
+              { value: 15, label: "15" },
+              { value: 20, label: "20" },
+              { value: 30, label: "30" }
+            ]}
+            className={classes.noPrint}
+          />
+        )}
       </Stack>
     </Box>
   );
@@ -696,7 +744,11 @@ const ImpactFlow = ({ report }: ReportProps) => {
   ];
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+    <SimpleGrid
+      cols={{ base: 1, sm: 2, md: 3 }}
+      spacing="md"
+      className={classes.printGrid3}
+    >
       {steps.map(step => (
         <ImpactStep key={step.label} {...step} />
       ))}
@@ -738,7 +790,11 @@ const SegmentComparison = ({ report }: ReportProps) => {
 
   return (
     <Stack gap="lg">
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+      <SimpleGrid
+        cols={{ base: 1, md: 2 }}
+        spacing="md"
+        className={classes.printGrid2}
+      >
         <SegmentPanel segment={north} tone="north" />
         <SegmentPanel segment={south} tone="south" />
       </SimpleGrid>
@@ -795,7 +851,7 @@ const SegmentPanel = ({
         unservedMeters={segment.unservedSpanMeters}
       />
 
-      <SimpleGrid cols={3} spacing="xs">
+      <SimpleGrid cols={3} spacing="xs" className={classes.printGrid3}>
         <SegmentMiniStat
           label="Lunghezza"
           value={formatKilometers(segment.distanceMeters)}
@@ -826,4 +882,25 @@ const SegmentMiniStat = ({
     </Text>
     <Text fw={850}>{value}</Text>
   </Stack>
+);
+
+const ReportDisclaimer = () => (
+  <Box component="section" className={classes.disclaimer}>
+    <Stack gap={6}>
+      <Text fw={800}>Nota di lettura</Text>
+      <Text>
+        Questo modello è volutamente prudente: usa distanze in linea retta tra i
+        punti e una velocità di camminata da asfalto, 5 km/h. Sulla battigia il
+        percorso reale tende a essere più lungo e, con sabbia, bambini o borse,
+        la velocità reale può scendere. Per questo i risultati vanno letti come
+        una stima minima del problema, non come una misura gonfiata.
+      </Text>
+      <Text>
+        La “lunghezza lungomare” indica la linea stimata tra il primo e l'ultimo
+        punto di servizio tracciato: non misura la spiaggia fisica prima o dopo
+        quei punti. Tuttavia le assunzioni non producono un errore significativo da distorcere
+        significativamente i calcoli mostrati.
+      </Text>
+    </Stack>
+  </Box>
 );

@@ -137,6 +137,26 @@ export const BeachStandDrawer = () => {
             }}
           >
             {beachStand?.name}
+            <Text
+              mt={4}
+              size={"sm"}
+              style={{
+                color: "gray"
+              }}
+            >
+              di seguito trovi i punti di servizio più vicini a{" "}
+              <b>"{beachStand?.name}"</b>
+            </Text>
+            <Text
+              mt={0}
+              size={"sm"}
+              style={{
+                color: "gray"
+              }}
+            >
+              se li espandi puoi sapere quanto tempo impiegheresti a
+              raggiungerli
+            </Text>
           </Drawer.Title>
           <Drawer.CloseButton
             style={{
@@ -175,16 +195,23 @@ export const BeachStandDrawer = () => {
 
 const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
   const neighboors = useAtomValue(selectedBeachStandNeighbors);
-
+  const firstNext = neighboors.find(n => n.direction === "next");
+  const firstPrevious = neighboors.find(n => n.direction === "previous");
   return (
     <Stack gap="md" pb="md" maw={520} mx="auto" w="100%">
-      {neighboors.map(neighboor => (
-        <NeighborCard
-          key={neighboor.id}
-          origin={beachStand.coordinates}
-          neighbor={neighboor}
-        />
-      ))}
+      {[
+        ...(firstNext ? [firstNext] : []),
+        ...(firstPrevious ? [firstPrevious] : []),
+        ...neighboors.filter(n => n.id !== firstNext?.id && n.id !== firstPrevious?.id)
+      ]
+        .slice(0, 6)
+        .map(neighboor => (
+          <NeighborCard
+            key={neighboor.id}
+            origin={beachStand.coordinates}
+            neighbor={neighboor}
+          />
+        ))}
     </Stack>
   );
 };

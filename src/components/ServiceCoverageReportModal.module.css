@@ -60,6 +60,10 @@
   line-height: 1;
 }
 
+.heroContent {
+  max-width: 860px;
+}
+
 .heroText {
   max-width: 760px;
   font-size: clamp(1rem, 2vw, 1.18rem);
@@ -69,6 +73,12 @@
 
 .heroFacts {
   max-width: 820px;
+}
+
+.printGrid2,
+.printGrid3,
+.printGrid4 {
+  min-width: 0;
 }
 
 .heroFact {
@@ -87,6 +97,20 @@
 
 .reportBody {
   background: #f6f4ef;
+}
+
+.printHost {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  z-index: -1;
+  width: 1120px;
+  pointer-events: none;
+}
+
+.printDocument {
+  width: 100%;
+  background: #ffffff;
 }
 
 .section {
@@ -347,6 +371,15 @@
   background: #fff9ed;
 }
 
+.disclaimer {
+  padding: clamp(18px, 4vw, 28px) clamp(24px, 5vw, 44px);
+  border-top: 1px solid #e7e1d6;
+  background: #fffdf7;
+  color: #4f5b56;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 640px) {
   .modalToolbar {
     align-items: flex-start;
@@ -369,8 +402,17 @@
 
 @media print {
   @page {
-    margin: 12mm;
+    margin: 0;
     size: A4;
+  }
+
+  .printHost {
+    position: static;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    width: auto;
+    pointer-events: auto;
   }
 
   .modalOverlay,
@@ -408,15 +450,78 @@
     background: #ffffff;
   }
 
-  .hero {
-    padding: 0 0 18px;
+  .printDocument {
+    width: 210mm;
+    max-width: none;
+    min-height: 297mm;
+    padding: 12mm;
+    color: #17211f;
+    background: #ffffff;
+  }
+
+  .printDocument .hero {
+    overflow: visible;
+    padding: 0 0 8mm;
     border-bottom: 2px solid #17211f;
     background: #ffffff;
     color: #17211f;
   }
 
+  .printDocument .heroContent {
+    max-width: none;
+    gap: 10px;
+  }
+
+  .heroTitle {
+    max-width: none;
+    font-size: 34px;
+  }
+
   .heroText {
     color: #27332f;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .heroFacts {
+    max-width: none;
+  }
+
+  .heroFact {
+    min-height: auto;
+    padding: 10px;
+    border-color: #e2ded2;
+    background: #ffffff;
+    color: #17211f;
+  }
+
+  .heroFactValue {
+    font-size: 24px;
+  }
+
+  .printDocument .printGrid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .printDocument .printGrid3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .printDocument .printGrid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .section {
+    padding: 7mm 0;
+    break-inside: auto;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
   }
 
   .heroFact,
@@ -427,13 +532,74 @@
   .routePanel,
   .tableShell,
   .walkingControl,
-  .closingNote {
+  .closingNote,
+  .disclaimer {
     break-inside: avoid;
     box-shadow: none;
   }
 
-  .section {
-    padding: 18px 0;
-    break-inside: avoid;
+  .metricCard {
+    min-height: 30mm;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .metricIcon {
+    display: none;
+  }
+
+  .metricValue {
+    font-size: 24px;
+  }
+
+  .metricDetail {
+    font-size: 11px;
+  }
+
+  .assumptionPill,
+  .impactStep,
+  .segmentPanel,
+  .routePanel,
+  .walkingControl,
+  .closingNote,
+  .disclaimer {
+    padding: 12px;
+  }
+
+  .disclaimer {
+    margin-top: 7mm;
+    font-size: 11px;
+  }
+
+  .assumptionPill,
+  .impactStep,
+  .segmentMiniStat {
+    min-height: auto;
+  }
+
+  .walkingValueBox {
+    min-width: 72px;
+    padding: 8px 10px;
+  }
+
+  .walkingValue {
+    font-size: 28px;
+  }
+
+  .routeRail {
+    height: 16mm;
+  }
+
+  .unservedBand {
+    top: 6.2mm;
+    height: 4mm;
+  }
+
+  .tableShell {
+    overflow: visible;
+  }
+
+  .tableShell table {
+    min-width: 0;
   }
 }

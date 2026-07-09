@@ -32,6 +32,9 @@ importers:
       react-map-gl:
         specifier: ^8.1.1
         version: 8.1.1(mapbox-gl@3.25.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-to-print:
+        specifier: ^3.3.0
+        version: 3.3.0(react@19.2.7)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.5.2
@@ -789,6 +792,11 @@ packages:
       '@types/react':
         optional: true
 
+  react-to-print@3.3.0:
+    resolution: {integrity: sha512-7j9GIeNZA9glZlbv9mIbIHDOOx+WYfRMbJzh04NiSKjdaeGkxJuKjJQrtRuNKtt5AvEVVjrLCPokZ9yJX51Fvg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ~19
+
   react@19.2.7:
     resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
     engines: {node: '>=0.10.0'}
@@ -1460,6 +1468,10 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.17
+
+  react-to-print@3.3.0(react@19.2.7):
+    dependencies:
+      react: 19.2.7
 
   react@19.2.7: {}
 
