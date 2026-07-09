@@ -195,13 +195,16 @@ const ServiceCoverageReportContent = ({
   report
 }: InteractiveReportProps) => (
   <>
+    <Section title="Quanto tempo sei disposto a camminare?">
+      <WalkingTimeControl
+        mode={mode}
+        report={report}
+        value={maxRoundTripMinutes}
+        onChange={onMaxRoundTripMinutesChange}
+      />
+    </Section>
     <ReportHero report={report} />
-    <ReportBody
-      mode={mode}
-      report={report}
-      maxRoundTripMinutes={maxRoundTripMinutes}
-      onMaxRoundTripMinutesChange={onMaxRoundTripMinutesChange}
-    />
+    <ReportBody report={report} />
   </>
 );
 
@@ -218,7 +221,7 @@ const ReportHero = ({ report }: ReportProps) => {
           Ho provato a far parlare i numeri
         </Title>
         <Text className={classes.heroText}>
-          Intorno ai servizi sul lungomare di Sabaudia c'è una grande polemica.
+          Intorno ai servizi sul lungomare di Sabaudia c'è una grand parlane.<br/><br/>
           Io, però, faccio fatica a capire davvero l'impatto se non provo a
           tradurlo in numeri. Per questo ho fatto un esercizio semplice e
           personale: segnare sulla mappa tutti i punti in cui puoi acquistare e
@@ -234,12 +237,12 @@ const ReportHero = ({ report }: ReportProps) => {
           <HeroFact
             label="Tempo massimo"
             value={`${assumptions.maxAcceptableRoundTripMinutes} min`}
-            detail="andata e ritorno"
+            detail="tempo massimo di andata e ritorno per raggiungere un punto di servizio"
           />
           <HeroFact
             label="Distanza utile"
             value={formatMeters(assumptions.maxDistanceToStandMeters)}
-            detail="massimo da un servizio"
+            detail={`distanza massima da un punto di servizio (che in totale diventa ${formatMeters(assumptions.maxDistanceToStandMeters*2)}) `}
           />
           <HeroFact
             label="Punti tracciati"
@@ -252,28 +255,11 @@ const ReportHero = ({ report }: ReportProps) => {
   );
 };
 
-const ReportBody = ({
-  maxRoundTripMinutes,
-  mode,
-  onMaxRoundTripMinutesChange,
-  report
-}: InteractiveReportProps) => {
+const ReportBody = ({ report }: ReportProps) => {
   const { assumptions, economicImpact } = report;
 
   return (
     <Stack gap={0} className={classes.reportBody}>
-      <Section
-        eyebrow="Parametro interattivo"
-        title="Quanto tempo sei disposto a camminare?"
-      >
-        <WalkingTimeControl
-          mode={mode}
-          report={report}
-          value={maxRoundTripMinutes}
-          onChange={onMaxRoundTripMinutesChange}
-        />
-      </Section>
-
       <Section eyebrow="Sintesi" title="Il problema in quattro numeri">
         <SimpleGrid
           cols={{ base: 1, sm: 2 }}
@@ -298,14 +284,14 @@ const ReportBody = ({
             icon={IconUsers}
             label="Persone al giorno"
             value={formatInteger(economicImpact.dailyPeopleImpacted)}
-            detail="potenzialmente impattate dalle tratte scoperte"
+            detail="potenzialmente presenti nelle tratte scoperte"
             tone="violet"
           />
           <MetricCard
             icon={IconCurrencyEuro}
             label="Opportunità"
             value={formatEuro(economicImpact.dailyEconomicOpportunityEuros)}
-            detail="stima giornaliera, con ipotesi dichiarate"
+            detail={`stima giornaliera, con ipotesi dichiarate: considerando ${assumptions.averagePeoplePerVehicle} persone in media per veicolo e che ciascuna di loro spenda, in media, ${assumptions.averageExpensePerPersonEuros}€`}
             tone="amber"
           />
         </SimpleGrid>
@@ -325,12 +311,12 @@ const ReportBody = ({
           <AssumptionPill
             label="Copertura combinata"
             value={formatMeters(assumptions.maxCoveredGapBetweenStandsMeters)}
-            detail="somma dei due raggi raggiungibili"
+            detail="lo spazio che la persona adulta percorre tra andata e ritorno per raggiungere un punto di servizio."
           />
           <AssumptionPill
             label="Auto parcheggiata"
             value={`${assumptions.averageParkedVehicleLengthMeters} m`}
-            detail="ingombro medio"
+            detail="ingombro medio di un veicolo in sosta"
           />
           <AssumptionPill
             label="Ricambio"
@@ -367,13 +353,13 @@ const Section = ({
   title
 }: {
   children: ReactNode;
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
 }) => (
   <Box component="section" className={classes.section}>
     <Stack gap="md">
       <Stack gap={4}>
-        <Text className={classes.eyebrow}>{eyebrow}</Text>
+        {eyebrow && <Text className={classes.eyebrow}>{eyebrow}</Text>}
         <Title order={2} className={classes.sectionTitle}>
           {title}
         </Title>
@@ -399,7 +385,7 @@ const HeroFact = ({
     <Text fw={800} className={classes.heroFactValue}>
       {value}
     </Text>
-    <Text size="sm">{detail}</Text>
+    <Text size="sm" style={{color: "#b7b6b6"}}>{detail}</Text>
   </Box>
 );
 
@@ -484,18 +470,35 @@ const WalkingTimeControl = ({
             <Text fw={850} className={classes.walkingControlTitle}>
               {isPrint
                 ? "Tempo massimo considerato nei calcoli"
-                : "Trascina lo slider: tutti i numeri si aggiornano subito"}
+                : "Trascina lo slider e vedi l'impatto sui numeri"}
             </Text>
             <Text c="dimmed">
-              {isPrint
-                ? "In questa stampa considero un adulto disposto a camminare per "
-                : "L'assunzione centrale è questa: un adulto sarebbe disposto a camminare per "}
-              {value} minuti in totale, quindi andata e ritorno, per raggiungere
-              un punto di servizio. Con una velocità media stimata di{" "}
-              {assumptions.walkingSpeedKmH} km/h, significa accettare un
-              servizio distante al massimo{" "}
-              {formatMeters(assumptions.maxDistanceToStandMeters)} dalla propria
-              posizione in spiaggia.
+              {isPrint ? (
+                <>
+                  Questo report traduce in numeri quanto i servizi coprano il
+                  lungomare di Sabaudia, e il racconto completo è subito qui
+                  sotto. In questa stampa considero un adulto disposto a
+                  camminare per {value} minuti in totale, quindi andata e
+                  ritorno, per raggiungere un punto di servizio. Con una
+                  velocità media stimata di {assumptions.walkingSpeedKmH} km/h,
+                  significa accettare un servizio distante al massimo{" "}
+                  {formatMeters(assumptions.maxDistanceToStandMeters)} dalla
+                  propria posizione in spiaggia.
+                </>
+              ) : (
+                <>
+                  Per quanto tempo, quando sei in spiaggia, saresti disposto a
+                  camminare per raggiungere un punto di servizio — cibo, acqua o
+                  servizi igienici? <br/><br/>È l'assunzione da cui parte tutto il resto:
+                  mi sembra ragionevole stimarla in {value} minuti in totale,
+                  quindi andata e ritorno, ma puoi cambiarla quando vuoi con lo
+                  slider. Con una velocità media stimata di{" "}
+                  {assumptions.walkingSpeedKmH} km/h, significa accettare un
+                  servizio distante al massimo{" "}
+                  {formatMeters(assumptions.maxDistanceToStandMeters)} dalla
+                  propria posizione in spiaggia.
+                </>
+              )}
             </Text>
           </Stack>
           <Box className={classes.walkingValueBox}>
@@ -527,11 +530,11 @@ const WalkingTimeControl = ({
               }
             }}
             marks={[
-              { value: 5, label: "5" },
-              { value: 10, label: "10" },
-              { value: 15, label: "15" },
-              { value: 20, label: "20" },
-              { value: 30, label: "30" }
+              { value: 5, label: <Text size="sm" mt={2}>5min</Text> },
+              { value: 10, label: <Text size="sm" mt={2}>10min</Text> },
+              { value: 15, label: <Text size="sm" mt={2}>15min</Text> },
+              { value: 20, label: <Text size="sm" mt={2}>20min</Text> },
+              { value: 30, label: <Text size="sm" mt={2}>30min</Text> }
             ]}
             className={classes.noPrint}
           />
@@ -898,8 +901,8 @@ const ReportDisclaimer = () => (
       <Text>
         La “lunghezza lungomare” indica la linea stimata tra il primo e l'ultimo
         punto di servizio tracciato: non misura la spiaggia fisica prima o dopo
-        quei punti. Tuttavia le assunzioni non producono un errore significativo da distorcere
-        significativamente i calcoli mostrati.
+        quei punti. Tuttavia le assunzioni non producono un errore significativo
+        da distorcere significativamente i calcoli mostrati.
       </Text>
     </Stack>
   </Box>
