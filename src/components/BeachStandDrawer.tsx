@@ -154,8 +154,8 @@ export const BeachStandDrawer = () => {
                 color: "gray"
               }}
             >
-              se li espandi puoi sapere quanto tempo impiegheresti a
-              raggiungerli
+              se li espandi puoi sapere quanto tempo impiegheresti
+              <br /> a raggiungerli partendo da questo punto
             </Text>
           </Drawer.Title>
           <Drawer.CloseButton
@@ -202,7 +202,9 @@ const NeighborTravelTimes = ({ beachStand }: { beachStand: BeachStand }) => {
       {[
         ...(firstNext ? [firstNext] : []),
         ...(firstPrevious ? [firstPrevious] : []),
-        ...neighboors.filter(n => n.id !== firstNext?.id && n.id !== firstPrevious?.id)
+        ...neighboors.filter(
+          n => n.id !== firstNext?.id && n.id !== firstPrevious?.id
+        )
       ]
         .slice(0, 6)
         .map(neighboor => (

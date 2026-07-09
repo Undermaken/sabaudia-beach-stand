@@ -221,7 +221,9 @@ const ReportHero = ({ report }: ReportProps) => {
           Ho provato a far parlare i numeri
         </Title>
         <Text className={classes.heroText}>
-          Intorno ai servizi sul lungomare di Sabaudia c'è una grand parlane.<br/><br/>
+          Intorno ai servizi sul lungomare di Sabaudia c'è una grand parlane.
+          <br />
+          <br />
           Io, però, faccio fatica a capire davvero l'impatto se non provo a
           tradurlo in numeri. Per questo ho fatto un esercizio semplice e
           personale: segnare sulla mappa tutti i punti in cui puoi acquistare e
@@ -242,7 +244,7 @@ const ReportHero = ({ report }: ReportProps) => {
           <HeroFact
             label="Distanza utile"
             value={formatMeters(assumptions.maxDistanceToStandMeters)}
-            detail={`distanza massima da un punto di servizio (che in totale diventa ${formatMeters(assumptions.maxDistanceToStandMeters*2)}) `}
+            detail={`distanza massima da un punto di servizio (che in totale diventa ${formatMeters(assumptions.maxDistanceToStandMeters * 2)}) `}
           />
           <HeroFact
             label="Punti tracciati"
@@ -385,7 +387,9 @@ const HeroFact = ({
     <Text fw={800} className={classes.heroFactValue}>
       {value}
     </Text>
-    <Text size="sm" style={{color: "#b7b6b6"}}>{detail}</Text>
+    <Text size="sm" style={{ color: "#b7b6b6" }}>
+      {detail}
+    </Text>
   </Box>
 );
 
@@ -489,10 +493,11 @@ const WalkingTimeControl = ({
                 <>
                   Per quanto tempo, quando sei in spiaggia, saresti disposto a
                   camminare per raggiungere un punto di servizio — cibo, acqua o
-                  servizi igienici? <br/><br/>È l'assunzione da cui parte tutto il resto:
-                  mi sembra ragionevole stimarla in {value} minuti in totale,
-                  quindi andata e ritorno, ma puoi cambiarla quando vuoi con lo
-                  slider. Con una velocità media stimata di{" "}
+                  servizi igienici? <br />
+                  <br />È l'assunzione da cui parte tutto il resto: mi sembra
+                  ragionevole stimarla in {value} minuti in totale, quindi
+                  andata e ritorno, ma puoi cambiarla quando vuoi con lo slider.
+                  Con una velocità media stimata di{" "}
                   {assumptions.walkingSpeedKmH} km/h, significa accettare un
                   servizio distante al massimo{" "}
                   {formatMeters(assumptions.maxDistanceToStandMeters)} dalla
@@ -530,11 +535,46 @@ const WalkingTimeControl = ({
               }
             }}
             marks={[
-              { value: 5, label: <Text size="sm" mt={2}>5min</Text> },
-              { value: 10, label: <Text size="sm" mt={2}>10min</Text> },
-              { value: 15, label: <Text size="sm" mt={2}>15min</Text> },
-              { value: 20, label: <Text size="sm" mt={2}>20min</Text> },
-              { value: 30, label: <Text size="sm" mt={2}>30min</Text> }
+              {
+                value: 5,
+                label: (
+                  <Text size="sm" mt={2}>
+                    5min
+                  </Text>
+                )
+              },
+              {
+                value: 10,
+                label: (
+                  <Text size="sm" mt={2}>
+                    10min
+                  </Text>
+                )
+              },
+              {
+                value: 15,
+                label: (
+                  <Text size="sm" mt={2}>
+                    15min
+                  </Text>
+                )
+              },
+              {
+                value: 20,
+                label: (
+                  <Text size="sm" mt={2}>
+                    20min
+                  </Text>
+                )
+              },
+              {
+                value: 30,
+                label: (
+                  <Text size="sm" mt={2}>
+                    30min
+                  </Text>
+                )
+              }
             ]}
             className={classes.noPrint}
           />
