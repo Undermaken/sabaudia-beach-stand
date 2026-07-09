@@ -43,7 +43,7 @@ import {
   type ServiceCoverageReport,
   type UnservedStandGap
 } from "../utils/serviceCoverage.ts";
-import { openServiceCoverageReportPrintDocument } from "../utils/serviceCoveragePrint.ts";
+import { openServiceCoverageReportPrintDocument } from "../utils/serviceCoveragePrint.tsx";
 import { formatDuration } from "../utils/time.ts";
 import classes from "./ServiceCoverageReportModal.module.css";
 
@@ -255,7 +255,7 @@ const ReportBody = ({
       </Section>
 
       <Section eyebrow="Sintesi" title="Il problema in quattro numeri">
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
           <MetricCard
             icon={IconRoute}
             label="Lunghezza lungomare"
@@ -397,7 +397,9 @@ const MetricCard = ({
     </ThemeIcon>
     <Stack gap={4}>
       <Text className={classes.metricLabel}>{label}</Text>
-      <Text className={classes.metricValue}>{value}</Text>
+      <Text fw={900} className={classes.metricValue}>
+        {value}
+      </Text>
       <Text className={classes.metricDetail}>{detail}</Text>
     </Stack>
   </Box>

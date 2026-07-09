@@ -15,6 +15,7 @@ import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
 import { ServiceCoverageReportModal } from "./components/ServiceCoverageReportModal.tsx";
+import { SERVICE_AREA_RADIUS_METERS } from "./components/ServiceAreaCircle.tsx";
 
 export const App = () => {
   const [opened, { toggle }] = useDisclosure();
@@ -27,7 +28,7 @@ export const App = () => {
     <AppShell
       header={{ height: 56 }}
       navbar={{
-        width: 260,
+        width: 300,
         breakpoint: "sm",
         collapsed: { mobile: !opened, desktop: !opened }
       }}
@@ -46,7 +47,7 @@ export const App = () => {
             Navigazione
           </Text>
           <Switch
-            label="Mostra raggio di servizio"
+            label={`Mostra raggio di servizio (${SERVICE_AREA_RADIUS_METERS.toFixed(2)}m)`}
             checked={activeSettings.includes("beach_stand_cover_area")}
             onChange={() => toggleSetting("beach_stand_cover_area")}
           />
