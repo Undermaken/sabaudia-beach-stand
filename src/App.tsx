@@ -43,9 +43,30 @@ export const App = () => {
       padding={0}
     >
       <AppShell.Header>
-        <Group h="100%" px="md" gap="sm">
-          <Burger opened={opened} onClick={toggle} size="sm" />
-          <Title order={4}>Sabaudia Servizi balneari - 2026</Title>
+        <Group h="100%" px="md" gap="sm" justify="space-between" wrap="nowrap">
+          <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+            <Burger opened={opened} onClick={toggle} size="sm" />
+            <Title
+              order={4}
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }}
+            >
+              Sabaudia Servizi balneari - 2026
+            </Title>
+          </Group>
+          <Button
+            leftSection={<IconChartBar size={18} />}
+            onClick={openReport}
+            variant="filled"
+            color="teal"
+            size="sm"
+            style={{ flexShrink: 0 }}
+          >
+            Leggi i numeri
+          </Button>
         </Group>
       </AppShell.Header>
 
