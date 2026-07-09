@@ -1,6 +1,7 @@
 import {
   AppShell,
   Burger,
+  Button,
   Group,
   Stack,
   Switch,
@@ -8,13 +9,17 @@ import {
   Title
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconChartBar } from "@tabler/icons-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
+import { ServiceCoverageReportModal } from "./components/ServiceCoverageReportModal.tsx";
 
-export function App() {
+export const App = () => {
   const [opened, { toggle }] = useDisclosure();
+  const [reportOpened, { close: closeReport, open: openReport }] =
+    useDisclosure(false);
   const activeSettings = useAtomValue(activeSettingsAtom);
   const toggleSetting = useSetAtom(toggleSettingAtom);
 
@@ -31,7 +36,7 @@ export function App() {
       <AppShell.Header>
         <Group h="100%" px="md" gap="sm">
           <Burger opened={opened} onClick={toggle} size="sm" />
-          <Title order={4}>Sabaudia Servizi balneari</Title>
+          <Title order={4}>Sabaudia Servizi balneari - 2026</Title>
         </Group>
       </AppShell.Header>
 
@@ -50,6 +55,15 @@ export function App() {
             checked={activeSettings.includes("beach_stand_label")}
             onChange={() => toggleSetting("beach_stand_label")}
           />
+          <Button
+            leftSection={<IconChartBar size={18} />}
+            onClick={openReport}
+            variant="light"
+            color="teal"
+            mt="sm"
+          >
+            Leggi i numeri
+          </Button>
         </Stack>
       </AppShell.Navbar>
 
@@ -60,6 +74,7 @@ export function App() {
       </AppShell.Main>
 
       <BeachStandDrawer />
+      <ServiceCoverageReportModal opened={reportOpened} onClose={closeReport} />
     </AppShell>
   );
-}
+};

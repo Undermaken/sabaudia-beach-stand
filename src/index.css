@@ -16,3 +16,13 @@ body {
 body {
   overflow-x: hidden;
 }
+
+@media print {
+  body.service-report-open #root {
+    display: none;
+  }
+
+  body.service-report-open {
+    background: #ffffff;
+  }
+}
