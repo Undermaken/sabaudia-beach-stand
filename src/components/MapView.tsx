@@ -12,21 +12,23 @@ import {
   Map as MapGL,
   type MapRef,
   NavigationControl,
-  Source,
-  useControl
+  Source
 } from "react-map-gl/mapbox";
 import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
 import { BeachStandMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   selectedBeachStandAtom,
   selectedBeachStandNeighbors
 } from "../atoms/selectedBeackStand.ts";
 import type { GPSCoordinate } from "../types.ts";
+import { usePrevious } from "../hooks/usePrevious.ts";
 import { COLORS } from "../utils/colors.ts";
 import { myPositionAtom } from "../atoms/myPosition.ts";
 import { MyPositionMarker } from "./MyPositionMarker.tsx";
+import { ResetViewControl } from "./ResetViewControl.tsx";
+import { MyPositionControl } from "./MyPositionControl.tsx";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAP_PADDING = { top: 80, bottom: 40, left: 40, right: 40 };
@@ -47,37 +49,11 @@ type MapViewProps = {
   ref?: Ref<MapViewHandle>;
 };
 
-// "Fit to frame" icon for the custom reset control (mapbox controls are plain DOM).
-const RESET_VIEW_ICON =
-  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:auto"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>';
-
-// Mapbox has no built-in "reset view" control: add a custom mapbox-styled button
-// that stacks under NavigationControl (same corner, added after it).
-const ResetViewControl = ({ onReset }: { onReset: () => void }) => {
-  const onResetRef = useRef(onReset);
-  onResetRef.current = onReset;
-
-  useControl(
-    () => {
-      const container = document.createElement("div");
-      container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.title = "Reimposta vista";
-      button.setAttribute("aria-label", "Reimposta vista");
-      button.innerHTML = RESET_VIEW_ICON;
-      button.addEventListener("click", () => onResetRef.current());
-      container.appendChild(button);
-      return { onAdd: () => container, onRemove: () => container.remove() };
-    },
-    { position: "top-right" }
-  );
-
-  return null;
-};
-
 export const MapView = ({ ref }: MapViewProps) => {
   const myPosition = useAtomValue(myPositionAtom);
+  const setMyPosition = useSetAtom(myPositionAtom);
+  const prevActive = usePrevious(myPosition.active);
+  const hasCenteredRef = useRef(false);
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const beachStandNeighboors = useAtomValue(selectedBeachStandNeighbors);
   const nextNeighboor = beachStandNeighboors.find(
@@ -92,7 +68,10 @@ export const MapView = ({ ref }: MapViewProps) => {
   >([]);
   const clearDashedLine = useCallback(() => setDashedLines([]), []);
 
-  // Reset the map to its initial view (fit to every beach stand).
+  const toggleMyPosition = useCallback(() => {
+    setMyPosition(pv => ({ ...pv, active: !pv.active }));
+  }, [setMyPosition]);
+
   const resetView = useCallback(() => {
     mapRef.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
       padding: MAP_PADDING,
@@ -185,6 +164,39 @@ export const MapView = ({ ref }: MapViewProps) => {
     });
   }, [beachStand, nextNeighboor, previousNeighboor]);
 
+  // React to position tracking toggle:
+  // - activated → fly to the user's position (if already available)
+  // - deactivated → reset the centered flag and fit back to all beach stands
+  useEffect(() => {
+    if (!prevActive && myPosition.active) {
+      const lat = myPosition.position?.latitude;
+      const lon = myPosition.position?.longitude;
+      if (lat != null && lon != null) {
+        mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
+        hasCenteredRef.current = true;
+      }
+    }
+    if (prevActive && !myPosition.active) {
+      hasCenteredRef.current = false;
+      mapRef.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
+        padding: MAP_PADDING,
+        duration: 600
+      });
+    }
+  }, [myPosition.active, prevActive, myPosition.position?.latitude, myPosition.position?.longitude]);
+
+  // GPS coordinates may arrive after the tracking was activated (async geolocation);
+  // center the map once the first valid position comes in.
+  useEffect(() => {
+    if (!myPosition.active || hasCenteredRef.current) return;
+    const lat = myPosition.position?.latitude;
+    const lon = myPosition.position?.longitude;
+    if (lat != null && lon != null) {
+      mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
+      hasCenteredRef.current = true;
+    }
+  }, [myPosition.active, myPosition.position?.latitude, myPosition.position?.longitude]);
+
   if (!MAPBOX_TOKEN) {
     return (
       <Alert color="yellow" title="Mappa non disponibile" m="md">
@@ -210,6 +222,7 @@ export const MapView = ({ ref }: MapViewProps) => {
       >
         <NavigationControl position="top-right" />
         <ResetViewControl onReset={resetView} />
+        <MyPositionControl key={String(myPosition.active)} active={myPosition.active} onToggle={toggleMyPosition} />
         {beachStands.map(beachStand => (
           <BeachStandMarker key={beachStand.name} beachStand={beachStand} />
         ))}

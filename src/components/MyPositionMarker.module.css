@@ -1,0 +1,28 @@
+.dot {
+  --marker-rgb: 24, 133, 215;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgb(var(--marker-rgb));
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  animation: position-pulse 1.6s ease-out infinite;
+}
+
+@keyframes position-pulse {
+  0% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(var(--marker-rgb), 0.5);
+  }
+  70% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 14px rgba(var(--marker-rgb), 0);
+  }
+  100% {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(var(--marker-rgb), 0);
+  }
+}
