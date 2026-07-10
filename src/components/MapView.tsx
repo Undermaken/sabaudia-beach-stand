@@ -25,6 +25,8 @@ import {
 } from "../atoms/selectedBeackStand.ts";
 import type { GPSCoordinate } from "../types.ts";
 import { COLORS } from "../utils/colors.ts";
+import { myPositionAtom } from "../atoms/myPosition.ts";
+import { MyPositionMarker } from "./MyPositionMarker.tsx";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAP_PADDING = { top: 80, bottom: 40, left: 40, right: 40 };
@@ -75,6 +77,7 @@ const ResetViewControl = ({ onReset }: { onReset: () => void }) => {
 };
 
 export const MapView = ({ ref }: MapViewProps) => {
+  const myPosition = useAtomValue(myPositionAtom);
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const beachStandNeighboors = useAtomValue(selectedBeachStandNeighbors);
   const nextNeighboor = beachStandNeighboors.find(
@@ -229,6 +232,7 @@ export const MapView = ({ ref }: MapViewProps) => {
             </Source>
           );
         })}
+        {myPosition.active && <MyPositionMarker/>}
       </MapGL>
     </Box>
   );

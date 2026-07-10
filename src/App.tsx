@@ -30,6 +30,7 @@ export const App = () => {
   const serviceCoverageMaxDistanceToStandMeters = useAtomValue(
     serviceCoverageMaxDistanceToStandMetersAtom
   );
+  
   const toggleSetting = useSetAtom(toggleSettingAtom);
 
   return (
@@ -101,6 +102,7 @@ export const App = () => {
         style={{ display: "flex", flexDirection: "column", height: "100dvh" }}
       >
         <MapView />
+        
       </AppShell.Main>
 
       <BeachStandDrawer />

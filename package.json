@@ -19,12 +19,14 @@
     "@mantine/core": "^9.4.1",
     "@mantine/hooks": "^9.4.1",
     "@tabler/icons-react": "^3.44.0",
+    "@types/use-position": "^1.0.4",
     "jotai": "^2.20.1",
     "mapbox-gl": "^3.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-map-gl": "^8.1.1",
-    "react-to-print": "^3.3.0"
+    "react-to-print": "^3.3.0",
+    "use-position": "^1.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
