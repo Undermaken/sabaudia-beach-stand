@@ -1,1 +1,1 @@
-export const isDeveloperEnvironment = import.meta.env.NODE_ENV === "development";
+export const isDeveloperEnvironment = import.meta.env.MODE === "development";

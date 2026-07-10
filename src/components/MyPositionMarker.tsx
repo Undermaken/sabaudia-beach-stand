@@ -6,7 +6,7 @@ import { isDeveloperEnvironment } from "../utils/env";
 import { myPositionAtom } from "../atoms/myPosition";
 import classes from "./MyPositionMarker.module.css";
 
-const devCoordinates = [41.9010151, 12.500202];
+const devCoordinates = [41.35106376933946, 12.964129260409381];
 export const MyPositionMarker = () => {
   const myPosition = useAtomValue(myPositionAtom);
   const setMyPosition = useSetAtom(myPositionAtom);
