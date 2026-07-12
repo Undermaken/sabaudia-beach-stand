@@ -15,6 +15,7 @@ import { serviceCoverageMaxDistanceToStandMetersAtom } from "./atoms/serviceCove
 import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
+import { MyPositionDrawer } from "./components/MyPositionDrawer.tsx";
 import { ServiceCoverageReportModal } from "./components/ServiceCoverageReportModal.tsx";
 import { formatMeters } from "./utils/units.ts";
 
@@ -101,6 +102,7 @@ export const App = () => {
       </AppShell.Main>
 
       <BeachStandDrawer />
+      <MyPositionDrawer />
       <ServiceCoverageReportModal opened={reportOpened} onClose={closeReport} />
     </AppShell>
   );

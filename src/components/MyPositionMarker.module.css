@@ -6,6 +6,7 @@
   background-color: rgb(var(--marker-rgb));
   border: 2px solid #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
   animation: position-pulse 1.6s ease-out infinite;
 }
 

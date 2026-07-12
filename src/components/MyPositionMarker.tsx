@@ -29,8 +29,17 @@ export const MyPositionMarker = () => {
   const lon = myPosition.position?.longitude;
   if (lat == null || lon == null) return null;
 
+  const handleClick = () => {
+    setMyPosition(pv => ({ ...pv, drawerOpen: !pv.drawerOpen }));
+  };
+
   return (
-    <Marker latitude={lat} longitude={lon} anchor="center">
+    <Marker
+      latitude={lat}
+      longitude={lon}
+      anchor="center"
+      onClick={handleClick}
+    >
       <div className={classes.dot} />
     </Marker>
   );

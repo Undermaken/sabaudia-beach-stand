@@ -181,6 +181,8 @@ export const MapView = ({ ref }: MapViewProps) => {
     }
     if (prevActive && !myPosition.active) {
       hasCenteredRef.current = false;
+      setMyPosition(pv => ({ ...pv, drawerOpen: false }));
+      resetSelectedBeachStand();
       mapRef.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
         padding: MAP_PADDING,
         duration: 600

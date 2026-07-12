@@ -191,7 +191,7 @@ const gpsBeachStandKml = {
       }
     },
     {
-      name: "Le Saporetti",
+      name: "Saporetti",
       coordinates: {
         latitude: 41.24811318892581,
         longitude: 13.036409501150516,

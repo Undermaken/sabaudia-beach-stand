@@ -1,8 +1,11 @@
+import { atom } from "jotai";
 import { atomWithReset } from "jotai/utils";
+import { beachStands, type BeachStand } from "../data/points";
+import { haversineDistance } from "../utils/map";
 
 type MyPosition = {
   active: boolean;
-  centerInMap: boolean;
+  drawerOpen: boolean;
   position?: {
     latitude?: number;
     longitude?: number;
@@ -13,7 +16,23 @@ type MyPosition = {
 
 export const myPositionAtom = atomWithReset<MyPosition>({
   active: false,
-  centerInMap: false,
+  drawerOpen: false,
   position: undefined
 });
-myPositionAtom.debugLabel = "aroundYouIsActiveAtom";
+myPositionAtom.debugLabel = "myPositionAtom";
+
+export type NearbyStand = BeachStand & { distance: number };
+
+export const myPositionNearbyStandsAtom = atom<NearbyStand[]>(get => {
+  const myPosition = get(myPositionAtom);
+  const lat = myPosition.position?.latitude;
+  const lon = myPosition.position?.longitude;
+  if (lat == null || lon == null) return [];
+  const origin = { latitude: lat, longitude: lon, altitude: 0 };
+  return beachStands
+    .map(bs => ({
+      ...bs,
+      distance: haversineDistance(origin, bs.coordinates)
+    }))
+    .sort((a, b) => a.distance - b.distance);
+});

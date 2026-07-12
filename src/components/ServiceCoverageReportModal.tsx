@@ -982,8 +982,8 @@ const ReportDisclaimer = () => (
       <Text>
         La “lunghezza lungomare” indica la linea stimata tra il primo e l'ultimo
         punto di servizio tracciato: non misura la spiaggia fisica prima o dopo
-        quei punti. Tuttavia le assunzioni non producono un errore tale
-        da distorcere significativamente i calcoli mostrati.
+        quei punti. Tuttavia le assunzioni non producono un errore tale da
+        distorcere significativamente i calcoli mostrati.
       </Text>
     </Stack>
   </Box>

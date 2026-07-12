@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Marker } from "react-map-gl/mapbox";
 import { activeSettingsAtom } from "../atoms/settings.ts";
 import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
@@ -6,6 +6,7 @@ import type { BeachStand } from "../data/points.ts";
 import { BeachStandLabel } from "./BeachStandLabel.tsx";
 import { ServiceAreaCircle } from "./ServiceAreaCircle.tsx";
 import classes from "./BeachStandMarker.module.css";
+import { myPositionAtom } from "../atoms/myPosition.ts";
 
 type BeachStandProps = {
   beachStand: BeachStand;
@@ -21,6 +22,7 @@ export const BeachStandMarker = ({ beachStand }: BeachStandProps) => {
   const selectBeachStand = useSetAtom(selectedBeachStandAtom);
   const selected = useAtomValue(selectedBeachStandAtom);
   const activeSettings = useAtomValue(activeSettingsAtom);
+  const [myPosition, setMyPosition] = useAtom(myPositionAtom);
   const isSelected = selected?.id === beachStand.id;
   const showServiceArea = activeSettings.includes("beach_stand_cover_area");
   const showLabel = activeSettings.includes("beach_stand_label");
@@ -30,7 +32,12 @@ export const BeachStandMarker = ({ beachStand }: BeachStandProps) => {
       latitude={latitude}
       longitude={longitude}
       anchor="center"
-      onClick={() => selectBeachStand(beachStand)}
+      onClick={() => {
+        selectBeachStand(beachStand);
+        if (myPosition.active && !myPosition.drawerOpen) {
+          setMyPosition(pv => ({ ...pv, drawerOpen: true }));
+        }
+      }}
     >
       {showServiceArea && (
         <ServiceAreaCircle
