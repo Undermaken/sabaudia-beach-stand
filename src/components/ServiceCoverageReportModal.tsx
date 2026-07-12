@@ -206,7 +206,7 @@ const ReportHero = ({ report }: ReportProps) => {
           Ho provato a far parlare i numeri
         </Title>
         <Text className={classes.heroText}>
-          Intorno ai servizi sul lungomare di Sabaudia c'è una grand parlane.
+          Intorno ai servizi sul lungomare di Sabaudia c'è una gran discussione.
           <br />
           <br />
           Non sono interessato alle ragioni per cui c'è questo scenario. Questo
@@ -222,15 +222,15 @@ const ReportHero = ({ report }: ReportProps) => {
           "<br />
           <br />
           Quindi ho fatto questo: ho segnato su mappa tutti i punti di servizio
-          (bar, ristori e chioschi) e ho fatto un pò di conti.
+          (bar, ristori e chioschi) e ho fatto un po' di conti.
           <br />
-          <br />I conti si basano su una assuzione: sono disposto a camminare
+          <br />I conti si basano su un'assunzione: sono disposto a camminare
           per <b>{assumptions.maxAcceptableRoundTripMinutes}</b> minuti e sulla
           base di questo ho cercato di capire quanto tratto del litorale è
           "fuori" dalla portata di questo parametro.
           <br />
           Ovviamente questo parametro può essere variato, sia aumentandolo, sia
-          diminuendolo. L'app aggiornerà tutti i calcoli di conseguenza!
+          diminuendolo. L'app aggiornerà tutti i calcoli di conseguenza.
         </Text>
         <SimpleGrid
           cols={{ base: 1, sm: 3 }}
@@ -319,8 +319,7 @@ const ReportBody = ({ report }: ReportProps) => {
             icon={IconCurrencyEuro}
             label="Opportunità"
             value={formatEuro(economicImpact.dailyEconomicOpportunityEuros)}
-            detail={`La cifra che si perde ogni giorno non servendo quelle persone che finiscono in un punto del litorale in cui non sono disposti a raggiungere nessun punto di servizio. Questo valore viene calcolato considerando le auto che possono sostare nei tratti "scoperti", assumento che
-              ogni veicolo trasporta in media ${assumptions.averagePeoplePerVehicle} persone e che ciascuna di loro spenda, in media, ${assumptions.averageExpensePerPersonEuros}€`}
+            detail={`La cifra che si perde ogni giorno non servendo quelle persone che finiscono in un punto del litorale in cui non sono disposte a raggiungere nessun punto di servizio. Questo valore viene calcolato considerando le auto che possono sostare nei tratti "scoperti", assumendo che ogni veicolo trasporti in media ${assumptions.averagePeoplePerVehicle} persone e che ciascuna di loro spenda, in media, ${assumptions.averageExpensePerPersonEuros}€`}
             tone="amber"
           />
         </SimpleGrid>
@@ -509,16 +508,17 @@ const WalkingTimeControl = ({
                   camminare per <b>{value}</b> minuti in totale, tra andata e
                   ritorno, per raggiungere un punto di servizio. <br />
                   Con una velocità media stimata di{" "}
-                  <b>{assumptions.walkingSpeedKmH} km/h</b>e camminando per{" "}
+                  <b>{assumptions.walkingSpeedKmH} km/h</b> e camminando per{" "}
                   <b>{value} minuti</b>, significa accettare un servizio
                   distante al massimo{" "}
                   <b>{formatMeters(assumptions.maxDistanceToStandMeters)}</b>{" "}
                   dalla propria posizione in spiaggia.
                   <br />
-                  Percorrendo qui un totale di{" "}
+                  Percorrendo in totale{" "}
                   <b>
                     {formatMeters(assumptions.maxDistanceToStandMeters * 2)}
-                  </b>
+                  </b>{" "}
+                  tra andata e ritorno.
                 </>
               ) : (
                 <>
@@ -538,10 +538,11 @@ const WalkingTimeControl = ({
                   <b>{formatMeters(assumptions.maxDistanceToStandMeters)}</b>{" "}
                   dalla propria posizione in spiaggia.
                   <br />
-                  Percorrendo qui un totale di{" "}
+                  Percorrendo in totale{" "}
                   <b>
                     {formatMeters(assumptions.maxDistanceToStandMeters * 2)}
-                  </b>
+                  </b>{" "}
+                  tra andata e ritorno.
                 </>
               )}
             </Text>
@@ -981,7 +982,7 @@ const ReportDisclaimer = () => (
       <Text>
         La “lunghezza lungomare” indica la linea stimata tra il primo e l'ultimo
         punto di servizio tracciato: non misura la spiaggia fisica prima o dopo
-        quei punti. Tuttavia le assunzioni non producono un errore significativo
+        quei punti. Tuttavia le assunzioni non producono un errore tale
         da distorcere significativamente i calcoli mostrati.
       </Text>
     </Stack>

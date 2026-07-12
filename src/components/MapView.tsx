@@ -18,6 +18,7 @@ import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
 import { BeachStandMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useResetAtom } from "jotai/utils";
 import {
   selectedBeachStandAtom,
   selectedBeachStandNeighbors
@@ -55,6 +56,7 @@ export const MapView = ({ ref }: MapViewProps) => {
   const prevActive = usePrevious(myPosition.active);
   const hasCenteredRef = useRef(false);
   const beachStand = useAtomValue(selectedBeachStandAtom);
+  const resetSelectedBeachStand = useResetAtom(selectedBeachStandAtom);
   const beachStandNeighboors = useAtomValue(selectedBeachStandNeighbors);
   const nextNeighboor = beachStandNeighboors.find(
     bs => bs.direction === "next"
@@ -169,6 +171,7 @@ export const MapView = ({ ref }: MapViewProps) => {
   // - deactivated → reset the centered flag and fit back to all beach stands
   useEffect(() => {
     if (!prevActive && myPosition.active) {
+      resetSelectedBeachStand();
       const lat = myPosition.position?.latitude;
       const lon = myPosition.position?.longitude;
       if (lat != null && lon != null) {
