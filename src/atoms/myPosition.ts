@@ -1,6 +1,5 @@
 import { atomWithReset } from "jotai/utils";
 
-
 type MyPosition = {
   active: boolean;
   centerInMap: boolean;
@@ -12,13 +11,9 @@ type MyPosition = {
   };
 };
 
-
-
 export const myPositionAtom = atomWithReset<MyPosition>({
   active: false,
   centerInMap: false,
   position: undefined
 });
 myPositionAtom.debugLabel = "aroundYouIsActiveAtom";
-
-

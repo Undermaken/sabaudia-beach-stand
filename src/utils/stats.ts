@@ -4,28 +4,14 @@ import {
   type SegmentSummary,
   type UnservedStandGap
 } from "./serviceCoverage.ts";
-import { formatDuration } from "./time.ts";
-
-const integerFormatter = new Intl.NumberFormat("it-IT", {
-  maximumFractionDigits: 0
-});
-const decimalFormatter = new Intl.NumberFormat("it-IT", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2
-});
-const euroFormatter = new Intl.NumberFormat("it-IT", {
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  style: "currency"
-});
-
-const formatMeters = (meters: number) => `${decimalFormatter.format(meters)}m`;
-const formatKilometers = (meters: number) =>
-  `${decimalFormatter.format(meters / 1000)}km`;
-const formatPercent = (ratio: number) =>
-  `${decimalFormatter.format(ratio * 100)}%`;
-const formatWalkingMinutes = (minutes: number) =>
-  `${formatDuration(minutes)} (camminata)`;
+import {
+  euroFormatter,
+  formatKilometers,
+  formatMeters,
+  formatPercent,
+  formatWalkingMinutes,
+  integerFormatter
+} from "./units.ts";
 
 const formatStandGap = (gap: AdjacentStandGap) =>
   `${formatKilometers(gap.distanceMeters)} tra ${gap.standA.name} e ${gap.standB.name} (${formatWalkingMinutes(gap.walkingMinutes)})`;

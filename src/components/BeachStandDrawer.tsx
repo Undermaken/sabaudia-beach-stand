@@ -35,7 +35,8 @@ import {
   type MovingMode
 } from "../utils/map.ts";
 import { COLORS } from "../utils/colors.ts";
-import { formatDuration } from "../utils/time.ts";
+import { formatDuration } from "../utils/units.ts";
+import { myPositionAtom } from "../atoms/myPosition.ts";
 
 /** Human-readable label, accent color and icon for each moving mode. */
 const MODE_META: Record<
@@ -86,10 +87,11 @@ function formatDistance(meters: number): string {
 export const BeachStandDrawer = () => {
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const resetAtom = useResetAtom(selectedBeachStandAtom);
+  const myPosition = useAtomValue(myPositionAtom);
 
   return (
     <Drawer.Root
-      opened={beachStand !== undefined}
+      opened={beachStand !== undefined && !myPosition.active}
       onClose={resetAtom}
       position="bottom"
       size="auto"

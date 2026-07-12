@@ -16,11 +16,7 @@ import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
 import { BeachStandDrawer } from "./components/BeachStandDrawer.tsx";
 import { MapView } from "./components/MapView.tsx";
 import { ServiceCoverageReportModal } from "./components/ServiceCoverageReportModal.tsx";
-
-const meterFormatter = new Intl.NumberFormat("it-IT", {
-  maximumFractionDigits: 0
-});
-const formatMeters = (meters: number) => `${meterFormatter.format(meters)} m`;
+import { formatMeters } from "./utils/units.ts";
 
 export const App = () => {
   const [opened, { toggle }] = useDisclosure();
@@ -30,7 +26,7 @@ export const App = () => {
   const serviceCoverageMaxDistanceToStandMeters = useAtomValue(
     serviceCoverageMaxDistanceToStandMetersAtom
   );
-  
+
   const toggleSetting = useSetAtom(toggleSettingAtom);
 
   return (
@@ -82,7 +78,7 @@ export const App = () => {
             onChange={() => toggleSetting("beach_stand_cover_area")}
           />
           <Switch
-            label="Mostra nome stabilimenti"
+            label="Mostra nome punti di servizio"
             checked={activeSettings.includes("beach_stand_label")}
             onChange={() => toggleSetting("beach_stand_label")}
           />
@@ -102,7 +98,6 @@ export const App = () => {
         style={{ display: "flex", flexDirection: "column", height: "100dvh" }}
       >
         <MapView />
-        
       </AppShell.Main>
 
       <BeachStandDrawer />

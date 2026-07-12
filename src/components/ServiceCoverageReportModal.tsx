@@ -42,8 +42,15 @@ import {
   type UnservedStandGap
 } from "../utils/serviceCoverage.ts";
 import { serviceCoveragePrintPageStyle } from "../utils/serviceCoveragePrint.ts";
-import { formatDuration } from "../utils/time.ts";
 import classes from "./ServiceCoverageReportModal.module.css";
+import {
+  formatEuro,
+  formatInteger,
+  formatKilometers,
+  formatMeters,
+  formatPercent,
+  formatWalkingMinutes
+} from "../utils/units.ts";
 
 type ServiceCoverageReportModalProps = {
   opened: boolean;
@@ -60,28 +67,6 @@ type InteractiveReportProps = ReportProps & {
   onMaxRoundTripMinutesChange: (value: number) => void;
   mode: ReportMode;
 };
-
-const integerFormatter = new Intl.NumberFormat("it-IT", {
-  maximumFractionDigits: 0
-});
-const decimalFormatter = new Intl.NumberFormat("it-IT", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2
-});
-const euroFormatter = new Intl.NumberFormat("it-IT", {
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  style: "currency"
-});
-
-const formatInteger = (value: number) => integerFormatter.format(value);
-const formatKilometers = (meters: number) =>
-  `${decimalFormatter.format(meters / 1000)} km`;
-const formatMeters = (meters: number) => `${decimalFormatter.format(meters)} m`;
-const formatPercent = (ratio: number) =>
-  `${decimalFormatter.format(ratio * 100)}%`;
-const formatEuro = (value: number) => euroFormatter.format(value);
-const formatWalkingMinutes = (minutes: number) => formatDuration(minutes);
 
 const getSegmentLabel = (gap: UnservedStandGap) => {
   if (gap.routeSegment === "north") {
@@ -224,12 +209,28 @@ const ReportHero = ({ report }: ReportProps) => {
           Intorno ai servizi sul lungomare di Sabaudia c'è una grand parlane.
           <br />
           <br />
-          Io, però, faccio fatica a capire davvero l'impatto se non provo a
-          tradurlo in numeri. Per questo ho fatto un esercizio semplice e
-          personale: segnare sulla mappa tutti i punti in cui puoi acquistare e
-          consumare cibo e bevande, e usare i servizi igienici. Spero di averli
-          inclusi tutti. Da lì ho fatto alcune assunzioni, dichiarate, e ho
-          lasciato che fossero i numeri a raccontare il resto.
+          Non sono interessato alle ragioni per cui c'è questo scenario. Questo
+          è un discorso per la politica.
+          <br />
+          <br />
+          Piuttosto mi sono domandato: <br />"
+          <i>
+            Se scelgo casualmente un punto della costa di Sabaudia, qual è la
+            probabilità che il servizio più vicino si trovi oltre la distanza
+            che sono disposto a percorrere a piedi?
+          </i>
+          "<br />
+          <br />
+          Quindi ho fatto questo: ho segnato su mappa tutti i punti di servizio
+          (bar, ristori e chioschi) e ho fatto un pò di conti.
+          <br />
+          <br />I conti si basano su una assuzione: sono disposto a camminare
+          per <b>{assumptions.maxAcceptableRoundTripMinutes}</b> minuti e sulla
+          base di questo ho cercato di capire quanto tratto del litorale è
+          "fuori" dalla portata di questo parametro.
+          <br />
+          Ovviamente questo parametro può essere variato, sia aumentandolo, sia
+          diminuendolo. L'app aggiornerà tutti i calcoli di conseguenza!
         </Text>
         <SimpleGrid
           cols={{ base: 1, sm: 3 }}
@@ -272,28 +273,54 @@ const ReportBody = ({ report }: ReportProps) => {
             icon={IconRoute}
             label="Lunghezza lungomare"
             value={formatKilometers(report.totalMeasuredLineMeters)}
-            detail="stimata seguendo la sequenza dei punti di servizio tracciati"
+            detail="Stimata seguendo la sequenza dei punti di servizio tracciati"
             tone="teal"
           />
           <MetricCard
             icon={IconBeach}
             label="Spazio non servito"
             value={formatKilometers(report.totalUnservedSpanMeters)}
-            detail={`${formatPercent(report.totalUnservedSpanRatio)} della lunghezza stimata`}
+            detail={
+              <Text>
+                <b>{formatPercent(report.totalUnservedSpanRatio)}</b> della
+                lunghezza stimata. <br />
+                Questa percentuale indica{" "}
+                <b>
+                  <u>
+                    la probabilità che ho di finire in un punto del litorale in
+                    cui i servizi sono più distanti di quanto sono disposto a
+                    camminare
+                  </u>
+                </b>
+              </Text>
+            }
             tone="coral"
           />
           <MetricCard
             icon={IconUsers}
             label="Persone al giorno"
             value={formatInteger(economicImpact.dailyPeopleImpacted)}
-            detail="potenzialmente presenti nelle tratte scoperte"
+            detail={
+              <Text>
+                Potenzialmente presenti nelle tratte scoperte.
+                <br />
+                Questo valore si ottiene dividendo la lunghezza del tratto
+                "scoperto" da servizi{" "}
+                {formatKilometers(report.totalUnservedSpanMeters)} per la
+                lunghezza media di un veicolo in parcheggio{" "}
+                {formatMeters(assumptions.averageParkedVehicleLengthMeters)} e
+                moltiplicando tutto per l'assunzione che ogni veicolo trasporti
+                in media {assumptions.averagePeoplePerVehicle} persone.
+              </Text>
+            }
             tone="violet"
           />
           <MetricCard
             icon={IconCurrencyEuro}
             label="Opportunità"
             value={formatEuro(economicImpact.dailyEconomicOpportunityEuros)}
-            detail={`stima giornaliera, con ipotesi dichiarate: considerando ${assumptions.averagePeoplePerVehicle} persone in media per veicolo e che ciascuna di loro spenda, in media, ${assumptions.averageExpensePerPersonEuros}€`}
+            detail={`La cifra che si perde ogni giorno non servendo quelle persone che finiscono in un punto del litorale in cui non sono disposti a raggiungere nessun punto di servizio. Questo valore viene calcolato considerando le auto che possono sostare nei tratti "scoperti", assumento che
+              ogni veicolo trasporta in media ${assumptions.averagePeoplePerVehicle} persone e che ciascuna di loro spenda, in media, ${assumptions.averageExpensePerPersonEuros}€`}
             tone="amber"
           />
         </SimpleGrid>
@@ -400,7 +427,7 @@ const MetricCard = ({
   tone,
   value
 }: {
-  detail: string;
+  detail: React.ReactNode;
   icon: IconComponent;
   label: string;
   tone: "amber" | "coral" | "teal" | "violet";
@@ -467,9 +494,6 @@ const WalkingTimeControl = ({
               <ThemeIcon color="teal" variant="light" radius="md" size={34}>
                 <IconSettings size={19} />
               </ThemeIcon>
-              <Badge color="teal" radius="sm" variant="filled">
-                {isPrint ? "Parametro usato" : "Interattivo"}
-              </Badge>
             </Group>
             <Text fw={850} className={classes.walkingControlTitle}>
               {isPrint
@@ -482,12 +506,19 @@ const WalkingTimeControl = ({
                   Questo report traduce in numeri quanto i servizi coprano il
                   lungomare di Sabaudia, e il racconto completo è subito qui
                   sotto. In questa stampa considero un adulto disposto a
-                  camminare per {value} minuti in totale, quindi andata e
-                  ritorno, per raggiungere un punto di servizio. Con una
-                  velocità media stimata di {assumptions.walkingSpeedKmH} km/h,
-                  significa accettare un servizio distante al massimo{" "}
-                  {formatMeters(assumptions.maxDistanceToStandMeters)} dalla
-                  propria posizione in spiaggia.
+                  camminare per <b>{value}</b> minuti in totale, tra andata e
+                  ritorno, per raggiungere un punto di servizio. <br />
+                  Con una velocità media stimata di{" "}
+                  <b>{assumptions.walkingSpeedKmH} km/h</b>e camminando per{" "}
+                  <b>{value} minuti</b>, significa accettare un servizio
+                  distante al massimo{" "}
+                  <b>{formatMeters(assumptions.maxDistanceToStandMeters)}</b>{" "}
+                  dalla propria posizione in spiaggia.
+                  <br />
+                  Percorrendo qui un totale di{" "}
+                  <b>
+                    {formatMeters(assumptions.maxDistanceToStandMeters * 2)}
+                  </b>
                 </>
               ) : (
                 <>
@@ -495,13 +526,22 @@ const WalkingTimeControl = ({
                   camminare per raggiungere un punto di servizio — cibo, acqua o
                   servizi igienici? <br />
                   <br />È l'assunzione da cui parte tutto il resto: mi sembra
-                  ragionevole stimarla in {value} minuti in totale, quindi
-                  andata e ritorno, ma puoi cambiarla quando vuoi con lo slider.
+                  ragionevole stimarla in <b>{value} minuti</b> in totale,
+                  quindi andata e ritorno, ma puoi cambiarla quando vuoi con lo
+                  slider.
+                  <br />
+                  <br />
                   Con una velocità media stimata di{" "}
-                  {assumptions.walkingSpeedKmH} km/h, significa accettare un
-                  servizio distante al massimo{" "}
-                  {formatMeters(assumptions.maxDistanceToStandMeters)} dalla
-                  propria posizione in spiaggia.
+                  <b>{assumptions.walkingSpeedKmH} km/h</b> e camminando per{" "}
+                  <b>{value} minuti</b>, significa accettare un servizio
+                  distante al massimo{" "}
+                  <b>{formatMeters(assumptions.maxDistanceToStandMeters)}</b>{" "}
+                  dalla propria posizione in spiaggia.
+                  <br />
+                  Percorrendo qui un totale di{" "}
+                  <b>
+                    {formatMeters(assumptions.maxDistanceToStandMeters * 2)}
+                  </b>
                 </>
               )}
             </Text>
@@ -538,7 +578,7 @@ const WalkingTimeControl = ({
               {
                 value: 5,
                 label: (
-                  <Text size="sm" mt={2}>
+                  <Text size="sm" mt={4}>
                     5min
                   </Text>
                 )
@@ -546,7 +586,7 @@ const WalkingTimeControl = ({
               {
                 value: 10,
                 label: (
-                  <Text size="sm" mt={2}>
+                  <Text size="sm" mt={4}>
                     10min
                   </Text>
                 )
@@ -554,7 +594,7 @@ const WalkingTimeControl = ({
               {
                 value: 15,
                 label: (
-                  <Text size="sm" mt={2}>
+                  <Text size="sm" mt={4}>
                     15min
                   </Text>
                 )
@@ -562,7 +602,7 @@ const WalkingTimeControl = ({
               {
                 value: 20,
                 label: (
-                  <Text size="sm" mt={2}>
+                  <Text size="sm" mt={4}>
                     20min
                   </Text>
                 )
@@ -570,7 +610,7 @@ const WalkingTimeControl = ({
               {
                 value: 30,
                 label: (
-                  <Text size="sm" mt={2}>
+                  <Text size="sm" mt={4}>
                     30min
                   </Text>
                 )

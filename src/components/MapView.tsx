@@ -183,7 +183,12 @@ export const MapView = ({ ref }: MapViewProps) => {
         duration: 600
       });
     }
-  }, [myPosition.active, prevActive, myPosition.position?.latitude, myPosition.position?.longitude]);
+  }, [
+    myPosition.active,
+    prevActive,
+    myPosition.position?.latitude,
+    myPosition.position?.longitude
+  ]);
 
   // GPS coordinates may arrive after the tracking was activated (async geolocation);
   // center the map once the first valid position comes in.
@@ -195,7 +200,11 @@ export const MapView = ({ ref }: MapViewProps) => {
       mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
       hasCenteredRef.current = true;
     }
-  }, [myPosition.active, myPosition.position?.latitude, myPosition.position?.longitude]);
+  }, [
+    myPosition.active,
+    myPosition.position?.latitude,
+    myPosition.position?.longitude
+  ]);
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -222,7 +231,11 @@ export const MapView = ({ ref }: MapViewProps) => {
       >
         <NavigationControl position="top-right" />
         <ResetViewControl onReset={resetView} />
-        <MyPositionControl key={String(myPosition.active)} active={myPosition.active} onToggle={toggleMyPosition} />
+        <MyPositionControl
+          key={String(myPosition.active)}
+          active={myPosition.active}
+          onToggle={toggleMyPosition}
+        />
         {beachStands.map(beachStand => (
           <BeachStandMarker key={beachStand.name} beachStand={beachStand} />
         ))}
@@ -245,7 +258,7 @@ export const MapView = ({ ref }: MapViewProps) => {
             </Source>
           );
         })}
-        {myPosition.active && <MyPositionMarker/>}
+        {myPosition.active && <MyPositionMarker />}
       </MapGL>
     </Box>
   );
