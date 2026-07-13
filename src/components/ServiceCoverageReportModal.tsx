@@ -209,28 +209,18 @@ const ReportHero = ({ report }: ReportProps) => {
           Intorno ai servizi sul lungomare di Sabaudia c'è una gran discussione.
           <br />
           <br />
-          Non sono interessato alle ragioni per cui c'è questo scenario. Questo
-          è un discorso per la politica.
+          Non sono interessato alle ragioni dietro questo scanrio. Lascio la discussione alla politica. A me piace provare a far parlare i numeri.
           <br />
           <br />
-          Piuttosto mi sono domandato: <br />"
+          Mi sono quindi domandato: <br />"
           <i>
-            Se scelgo casualmente un punto della costa di Sabaudia, qual è la
+            Se scelgo casualmente un punto del litorale di Sabaudia, qual è la
             probabilità che il servizio più vicino si trovi oltre la distanza
             che sono disposto a percorrere a piedi?
           </i>
           "<br />
           <br />
-          Quindi ho fatto questo: ho segnato su mappa tutti i punti di servizio
-          (bar, ristori e chioschi) e ho fatto un po' di conti.
-          <br />
-          <br />I conti si basano su un'assunzione: sono disposto a camminare
-          per <b>{assumptions.maxAcceptableRoundTripMinutes}</b> minuti e sulla
-          base di questo ho cercato di capire quanto tratto del litorale è
-          "fuori" dalla portata di questo parametro.
-          <br />
-          Ovviamente questo parametro può essere variato, sia aumentandolo, sia
-          diminuendolo. L'app aggiornerà tutti i calcoli di conseguenza.
+          Ho censito - spero in maniera completa - i vari punti di servizio distribuiti sul litorale e poi ho fatto dei conti.
         </Text>
         <SimpleGrid
           cols={{ base: 1, sm: 3 }}
@@ -240,15 +230,15 @@ const ReportHero = ({ report }: ReportProps) => {
           <HeroFact
             label="Tempo massimo"
             value={`${assumptions.maxAcceptableRoundTripMinutes} min`}
-            detail="tempo massimo di andata e ritorno per raggiungere un punto di servizio"
+            detail="tempo massimo tra andata e ritorno che sono disposto ad impiegare per raggiungere un punto di servizio."
           />
           <HeroFact
             label="Distanza utile"
             value={formatMeters(assumptions.maxDistanceToStandMeters)}
-            detail={`distanza massima da un punto di servizio (che in totale diventa ${formatMeters(assumptions.maxDistanceToStandMeters * 2)}) `}
+            detail={`distanza massima da un punto di servizio (che in totale diventa ${formatMeters(assumptions.maxDistanceToStandMeters * 2)}) percorsi.`}
           />
           <HeroFact
-            label="Punti tracciati"
+            label="Punti di servizio censiti"
             value={formatInteger(report.standCount)}
             detail="sulla linea costiera"
           />
@@ -284,12 +274,12 @@ const ReportBody = ({ report }: ReportProps) => {
               <Text>
                 <b>{formatPercent(report.totalUnservedSpanRatio)}</b> della
                 lunghezza stimata. <br />
-                Questa percentuale indica{" "}
+                Questa percentuale indica lo spazio di costa non servito, quindi in pratica{" "}
                 <b>
                   <u>
                     la probabilità che ho di finire in un punto del litorale in
-                    cui i servizi sono più distanti di quanto sono disposto a
-                    camminare
+                    cui i servizi sono distanti da me più di quanto sono disposto a
+                    camminare per raggiungerli
                   </u>
                 </b>
               </Text>
@@ -525,10 +515,9 @@ const WalkingTimeControl = ({
                   Per quanto tempo, quando sei in spiaggia, saresti disposto a
                   camminare per raggiungere un punto di servizio — cibo, acqua o
                   servizi igienici? <br />
-                  <br />È l'assunzione da cui parte tutto il resto: mi sembra
-                  ragionevole stimarla in <b>{value} minuti</b> in totale,
-                  quindi andata e ritorno, ma puoi cambiarla quando vuoi con lo
-                  slider.
+                  <br />È l'assunzione da cui parte tutto il resto.<br/> 
+                  In questo esperimento la stimiamo in <b>{value} minuti</b> in totale,
+                  quindi andata più ritorno. (puoi cambiare questo valore usando lo slider qui sotto)
                   <br />
                   <br />
                   Con una velocità media stimata di{" "}
