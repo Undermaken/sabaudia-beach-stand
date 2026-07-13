@@ -1,6 +1,10 @@
 import { Alert, Box } from "@mantine/core";
 import { useCallback, useEffect, useRef } from "react";
-import { Map as MapGL, type MapRef, NavigationControl } from "react-map-gl/mapbox";
+import {
+  Map as MapGL,
+  type MapRef,
+  NavigationControl
+} from "react-map-gl/mapbox";
 import { beachStands, getBounds, type BeachStand } from "../data/points.ts";
 import { BeachStandMarker } from "./BeachStandMarker.tsx";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -11,11 +15,15 @@ import {
   selectedBeachStandNeighbors
 } from "../atoms/selectedBeackStand.ts";
 import { usePrevious } from "../hooks/usePrevious.ts";
-import { myPositionAtom } from "../atoms/myPosition.ts";
+import {
+  myPositionAtom,
+  myPositionNearbyStandsAtom
+} from "../atoms/myPosition.ts";
 import { MyPositionMarker } from "./MyPositionMarker.tsx";
 import { ResetViewControl } from "./ResetViewControl.tsx";
 import { MyPositionControl } from "./MyPositionControl.tsx";
 import { NeighborLines } from "./NeighborLines.tsx";
+import { MyPositionLines } from "./MyPositionLines.tsx";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAP_PADDING = { top: 80, bottom: 40, left: 40, right: 40 };
@@ -25,7 +33,9 @@ const BEACH_STANDS_COORDS = beachStands.map(bs => bs.coordinates);
 export const MapView = () => {
   const myPosition = useAtomValue(myPositionAtom);
   const setMyPosition = useSetAtom(myPositionAtom);
+  const myPositionNearbyStands = useAtomValue(myPositionNearbyStandsAtom);
   const prevActive = usePrevious(myPosition.active);
+  const prevMyPositionDrawOpen = usePrevious(myPosition.drawerOpen);
   const hasCenteredRef = useRef(false);
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const resetSelectedBeachStand = useResetAtom(selectedBeachStandAtom);
@@ -116,6 +126,33 @@ export const MapView = () => {
     myPosition.position?.longitude
   ]);
 
+  useEffect(() => {
+    if(prevMyPositionDrawOpen && !myPosition.drawerOpen){
+      resetSelectedBeachStand();
+    }
+  },[prevMyPositionDrawOpen, myPosition]);
+
+  useEffect(() => {
+    if (
+      myPosition.active &&
+      myPosition.position?.latitude !== undefined &&
+      myPosition.position?.longitude !== undefined &&
+      myPosition.drawerOpen
+    ) {
+      const firstTwo = myPositionNearbyStands.slice(0, 2);
+      if (firstTwo.length > 0) {
+        mapRef.current?.fitBounds(
+          getBounds([myPosition.position, ...firstTwo.map(s => s.coordinates)]),
+          {
+            padding: MAP_PADDING,
+            maxZoom: Math.max(11, mapRef.current.getZoom()),
+            duration: 600
+          }
+        );
+      }
+    }
+  }, [myPosition, myPositionNearbyStands]);
+
   if (!MAPBOX_TOKEN) {
     return (
       <Alert color="yellow" title="Mappa non disponibile" m="md">
@@ -150,6 +187,7 @@ export const MapView = () => {
           <BeachStandMarker key={beachStand.name} beachStand={beachStand} />
         ))}
         <NeighborLines />
+        {myPosition.active && <MyPositionLines />}
         {myPosition.active && <MyPositionMarker />}
       </MapGL>
     </Box>

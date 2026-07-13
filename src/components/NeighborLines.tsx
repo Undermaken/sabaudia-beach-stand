@@ -5,18 +5,21 @@ import {
   selectedBeachStandNeighbors
 } from "../atoms/selectedBeackStand.ts";
 import { COLORS } from "../utils/colors.ts";
+import { myPositionAtom } from "../atoms/myPosition.ts";
+import { isNotNullish } from "../utils/typeGuards.ts";
 
 export const NeighborLines = () => {
   const beachStand = useAtomValue(selectedBeachStandAtom);
   const neighbors = useAtomValue(selectedBeachStandNeighbors);
+  const myPosition = useAtomValue(myPositionAtom);
 
-  if (!beachStand) return null;
+  if (myPosition.active || !beachStand) return null;
 
   const nextNeighbor = neighbors.find(n => n.direction === "next");
   const previousNeighbor = neighbors.find(n => n.direction === "previous");
 
   const lines = [nextNeighbor, previousNeighbor]
-    .filter(Boolean)
+    .filter(isNotNullish)
     .map(neighbor => ({
       id: `neighbor-line-${neighbor.id}`,
       color:

@@ -19,10 +19,12 @@ export const MyPositionMarker = () => {
     const [tmpLat, tmpLon] = isDeveloperEnvironment
       ? devCoordinates
       : [latitude, longitude];
-    setMyPosition(pv => ({
-      ...pv,
-      position: { latitude: tmpLat, longitude: tmpLon, accuracy, error }
-    }));
+    if (tmpLat && tmpLon) {
+      setMyPosition(pv => ({
+        ...pv,
+        position: { latitude: tmpLat, longitude: tmpLon, accuracy, error }
+      }));
+    }
   }, [latitude, longitude, accuracy, error, setMyPosition]);
 
   const lat = myPosition.position?.latitude;

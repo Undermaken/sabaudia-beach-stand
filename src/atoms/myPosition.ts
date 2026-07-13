@@ -7,8 +7,8 @@ type MyPosition = {
   active: boolean;
   drawerOpen: boolean;
   position?: {
-    latitude?: number;
-    longitude?: number;
+    latitude: number;
+    longitude: number;
     accuracy?: number;
     error?: string;
   };
