@@ -42,7 +42,23 @@ export const MyPositionMarker = () => {
       anchor="center"
       onClick={handleClick}
     >
-      <div className={classes.dot} />
+      <div className={classes.pulse}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="white"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="5" r="3" />
+          <path d="M12 10c-4 0-6 2.5-6 5v1h12v-1c0-2.5-2-5-6-5z" />
+          <path d="M8 20h8" />
+        </svg>
+      </div>
     </Marker>
   );
 };
