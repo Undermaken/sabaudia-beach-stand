@@ -6,6 +6,7 @@ import {
 } from "../atoms/myPosition.ts";
 import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
 import { StandDistanceCard } from "./StandDistanceCard.tsx";
+import { MY_POSITION_LINE_COLORS } from "./MyPositionLines.tsx";
 
 const ACCENT_COLOR = "#1885d7";
 
@@ -119,10 +120,10 @@ export const MyPositionDrawer = () => {
                   <Divider color="gray.2" />
                 </>
               )}
-              {otherStands.map(stand => (
+              {otherStands.map((stand,idx) => (
                 <StandDistanceCard
                   key={stand.id}
-                  accentColor="var(--mantine-color-teal-6)"
+                  accentColor={idx < MY_POSITION_LINE_COLORS.length ? MY_POSITION_LINE_COLORS[idx]: "var(--mantine-color-teal-6)"}
                   name={stand.name}
                   origin={origin}
                   destination={stand.coordinates}

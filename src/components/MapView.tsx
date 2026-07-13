@@ -62,9 +62,12 @@ export const MapView = () => {
   // Frame the viewport on the selection + its neighbors (whole set if none selected).
   useEffect(() => {
     if (!beachStand) {
-      mapRef?.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
-        padding: MAP_PADDING
-      });
+      if (!myPosition.active) {
+        mapRef?.current?.fitBounds(getBounds(BEACH_STANDS_COORDS), {
+          padding: MAP_PADDING
+        });
+      }
+
       return;
     }
     const bounds = getBounds(
@@ -85,16 +88,25 @@ export const MapView = () => {
   // - activated → fly to the user's position (if already available)
   // - deactivated → reset the centered flag and fit back to all beach stands
   useEffect(() => {
-    if (!prevActive && myPosition.active) {
+    const myPositionDrawerHasbeenClosed = prevMyPositionDrawOpen &&
+        myPosition.active &&
+        !myPosition.drawerOpen;
+    const myPositionBecomeActive = !prevActive && myPosition.active && !prevMyPositionDrawOpen;
+    const myPositionBecomeInactive = prevActive && !myPosition.active;
+    if (
+      myPosition.position &&
+      (myPositionDrawerHasbeenClosed ||
+        myPositionBecomeActive)
+    ) {
       resetSelectedBeachStand();
-      const lat = myPosition.position?.latitude;
-      const lon = myPosition.position?.longitude;
-      if (lat != null && lon != null) {
-        mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
-        hasCenteredRef.current = true;
-      }
+      const lat = myPosition.position.latitude;
+      const lon = myPosition.position.longitude;
+      mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
+      hasCenteredRef.current = true;
+      return;
     }
-    if (prevActive && !myPosition.active) {
+    if (myPositionBecomeInactive) {
+      console.log("HERE!");
       hasCenteredRef.current = false;
       setMyPosition(pv => ({ ...pv, drawerOpen: false }));
       resetSelectedBeachStand();
@@ -104,6 +116,7 @@ export const MapView = () => {
       });
     }
   }, [
+    prevMyPositionDrawOpen,
     myPosition.active,
     prevActive,
     myPosition.position?.latitude,
@@ -114,41 +127,40 @@ export const MapView = () => {
   // center the map once the first valid position comes in.
   useEffect(() => {
     if (!myPosition.active || hasCenteredRef.current) return;
-    const lat = myPosition.position?.latitude;
-    const lon = myPosition.position?.longitude;
+    if (!myPosition.position) {
+      return;
+    }
+    const lat = myPosition.position.latitude;
+    const lon = myPosition.position.longitude;
     if (lat != null && lon != null) {
       mapRef.current?.flyTo({ center: [lon, lat], zoom: 15, duration: 600 });
       hasCenteredRef.current = true;
     }
-  }, [
-    myPosition.active,
-    myPosition.position?.latitude,
-    myPosition.position?.longitude
-  ]);
+  }, [myPosition]);
 
   useEffect(() => {
-    if(prevMyPositionDrawOpen && !myPosition.drawerOpen){
+    if (prevMyPositionDrawOpen && !myPosition.drawerOpen) {
       resetSelectedBeachStand();
     }
-  },[prevMyPositionDrawOpen, myPosition]);
+  }, [prevMyPositionDrawOpen, myPosition]);
 
   useEffect(() => {
-    if (
-      myPosition.active &&
-      myPosition.position?.latitude !== undefined &&
-      myPosition.position?.longitude !== undefined &&
-      myPosition.drawerOpen
-    ) {
-      const firstTwo = myPositionNearbyStands.slice(0, 2);
-      if (firstTwo.length > 0) {
-        mapRef.current?.fitBounds(
-          getBounds([myPosition.position, ...firstTwo.map(s => s.coordinates)]),
-          {
-            padding: MAP_PADDING,
-            maxZoom: Math.max(11, mapRef.current.getZoom()),
-            duration: 600
-          }
-        );
+    if (myPosition.active && myPosition.position) {
+      if (!prevMyPositionDrawOpen && myPosition.drawerOpen) {
+        const firstTwo = myPositionNearbyStands.slice(0, 2);
+        if (firstTwo.length > 0) {
+          mapRef.current?.fitBounds(
+            getBounds([
+              myPosition.position,
+              ...firstTwo.map(s => s.coordinates)
+            ]),
+            {
+              padding: { ...MAP_PADDING, bottom: 380 },
+              maxZoom: 13,
+              duration: 600
+            }
+          );
+        }
       }
     }
   }, [myPosition, myPositionNearbyStands]);

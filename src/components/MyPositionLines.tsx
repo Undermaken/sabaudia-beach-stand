@@ -5,8 +5,9 @@ import {
   myPositionNearbyStandsAtom
 } from "../atoms/myPosition.ts";
 import { selectedBeachStandAtom } from "../atoms/selectedBeackStand.ts";
+import { COLORS } from "../utils/colors.ts";
 
-const LINE_COLOR = "#1885d7";
+export const MY_POSITION_LINE_COLORS = [COLORS.prevBeachStandLineColor, COLORS.nextBeachStandLineColor];
 
 export const MyPositionLines = () => {
   const myPosition = useAtomValue(myPositionAtom);
@@ -37,14 +38,14 @@ export const MyPositionLines = () => {
 
   return (
     <>
-      {lines.map(({ id, data }) => (
+      {lines.map(({ id, data }, idx) => (
         <Source key={id} id={id} type="geojson" data={data}>
           <Layer
             id={`${id}-layer`}
             type="line"
             layout={{ "line-cap": "round", "line-join": "round" }}
             paint={{
-              "line-color": LINE_COLOR,
+              "line-color": MY_POSITION_LINE_COLORS[idx % MY_POSITION_LINE_COLORS.length],
               "line-width": 3,
               "line-dasharray": [2, 2]
             }}
