@@ -1,4 +1,4 @@
-import { Divider, Drawer, Box, Group, Stack, Text } from "@mantine/core";
+import { Divider, Drawer, Box, Stack, Text } from "@mantine/core";
 import { useAtomValue } from "jotai";
 import { useResetAtom } from "jotai/utils";
 import {
