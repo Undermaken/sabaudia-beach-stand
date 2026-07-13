@@ -72,7 +72,7 @@ export const MyPositionDrawer = () => {
           >
             La tua posizione
             <Text mt={4} size="sm" style={{ color: "gray" }}>
-              Ecco i punti di servizio più vicini a te, ordinati per distanza
+              Ecco i punti di servizio più vicini a te (in linea d'aria), ordinati per distanza
             </Text>
           </Drawer.Title>
           <Drawer.CloseButton
