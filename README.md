@@ -1,5 +1,15 @@
 # Sabaudia Beach
 
+<p align="center">
+  <img src="docs/preview.png" alt="Sabaudia Beach — service points along the coastline" width="600" />
+</p>
+
+An interactive map of food, drink and restroom service points along the Sabaudia coastline (Latina, Italy). The app answers a simple question: *if I pick a random spot on this beach, how far do I have to walk to reach the nearest service?*
+
+It plots every tracked service point on a Mapbox map, computes coverage gaps, estimates the number of people and the economic opportunity left unserved, and bundles everything into a printable report. Users can adjust the maximum walking time and watch every metric update in real time. A GPS-based "my position" mode shows the nearest services from wherever you are.
+
+---
+
 A mobile-first, client-side React single-page application. No SSR, no backend
 server, no database — it runs entirely in the browser and is deployable as a
 static site on Vercel.
