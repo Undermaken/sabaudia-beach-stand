@@ -6,11 +6,11 @@ import { haversineDistance } from "../utils/map";
 type MyPosition = {
   active: boolean;
   drawerOpen: boolean;
+  error?: string;
   position?: {
     latitude: number;
     longitude: number;
     accuracy?: number;
-    error?: string;
   };
 };
 
