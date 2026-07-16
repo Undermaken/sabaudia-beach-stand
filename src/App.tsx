@@ -3,13 +3,14 @@ import {
   Burger,
   Button,
   Group,
+  ScrollArea,
   Stack,
   Switch,
   Text,
   Title
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconChartBar } from "@tabler/icons-react";
+import { IconChartBar, IconMail } from "@tabler/icons-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { serviceCoverageMaxDistanceToStandMetersAtom } from "./atoms/serviceCoverage.ts";
 import { activeSettingsAtom, toggleSettingAtom } from "./atoms/settings.ts";
@@ -70,30 +71,45 @@ export const App = () => {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <Stack gap="sm">
-          <Text size="sm" c="dimmed">
-            Navigazione
-          </Text>
-          <Switch
-            label={`Mostra raggio di servizio (${formatMeters(serviceCoverageMaxDistanceToStandMeters)})`}
-            checked={activeSettings.includes("beach_stand_cover_area")}
-            onChange={() => toggleSetting("beach_stand_cover_area")}
-          />
-          <Switch
-            label="Mostra nome punti di servizio"
-            checked={activeSettings.includes("beach_stand_label")}
-            onChange={() => toggleSetting("beach_stand_label")}
-          />
+        <AppShell.Section grow component={ScrollArea}>
+          <Stack gap="sm">
+            <Text size="sm" c="dimmed">
+              Navigazione
+            </Text>
+            <Switch
+              label={`Mostra raggio di servizio (${formatMeters(serviceCoverageMaxDistanceToStandMeters)})`}
+              checked={activeSettings.includes("beach_stand_cover_area")}
+              onChange={() => toggleSetting("beach_stand_cover_area")}
+            />
+            <Switch
+              label="Mostra nome punti di servizio"
+              checked={activeSettings.includes("beach_stand_label")}
+              onChange={() => toggleSetting("beach_stand_label")}
+            />
+            <Button
+              leftSection={<IconChartBar size={18} />}
+              onClick={openReport}
+              variant="light"
+              color="teal"
+              mt="sm"
+            >
+              Leggi i numeri
+            </Button>
+          </Stack>
+        </AppShell.Section>
+
+        <AppShell.Section mt="md">
           <Button
-            leftSection={<IconChartBar size={18} />}
-            onClick={openReport}
+            component="a"
+            href="mailto:mbmaken@hotmail.it?subject=contatto%20da%20sabaudia-beach%20app"
+            leftSection={<IconMail size={18} />}
             variant="light"
             color="teal"
-            mt="sm"
+            fullWidth
           >
-            Leggi i numeri
+            Contatta l'autore
           </Button>
-        </Stack>
+        </AppShell.Section>
       </AppShell.Navbar>
 
       <AppShell.Main
